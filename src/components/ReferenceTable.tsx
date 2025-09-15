@@ -231,18 +231,7 @@ const ReferenceTable = () => {
         </table>
       </div>
 
-      {/* Issue indicator */}
-      <div className="p-4 border-t border-border">
-        <div className="flex items-center gap-2">
-          <div className="bg-destructive text-destructive-foreground px-2 py-1 rounded-full text-xs font-medium">
-            N
-          </div>
-          <span className="text-sm text-muted-foreground">1 Issue</span>
-          <button className="ml-2 text-destructive hover:text-destructive/80 text-sm">
-            ✕
-          </button>
-        </div>
-      </div>
+      
     </div>
   );
 };
