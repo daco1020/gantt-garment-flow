@@ -1,5 +1,6 @@
-import { Calendar, Download, Plus, BarChart3 } from "lucide-react";
+import { Calendar, Download, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import NewReferenceDialog from "./NewReferenceDialog";
 
 const Header = () => {
   return (
@@ -23,10 +24,7 @@ const Header = () => {
               <Download className="h-4 w-4" />
               Importar CSV
             </Button>
-            <Button size="sm" className="gap-2 bg-primary hover:bg-primary/90">
-              <Plus className="h-4 w-4" />
-              Nueva Referencia
-            </Button>
+            <NewReferenceDialog />
           </div>
         </div>
       </div>
