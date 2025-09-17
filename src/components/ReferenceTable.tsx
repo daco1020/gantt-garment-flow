@@ -14,8 +14,9 @@ interface Reference {
   ingreso_a_bodega: string | null;
   lanzamiento_capsula: string | null;
   fecha_desbloqueo: string | null;
-  dias_desbloqueado: number;
+  dias_desbloqueado: number | null;
   created_at: string;
+  updated_at: string;
 }
 
 type SortField = keyof Reference;
@@ -23,27 +24,39 @@ type SortDirection = 'asc' | 'desc';
 
 const ReferenceTable = () => {
   const [data, setData] = useState<Reference[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState<SortField>('referencia');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [searchTerm, setSearchTerm] = useState('');
   const [monthFilter, setMonthFilter] = useState('all');
   const [dayFilter, setDayFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Fetch references from Supabase
   const fetchReferences = async () => {
     try {
+      setLoading(true);
       const { data: references, error } = await supabase
         .from('references')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching references:', error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar las referencias.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setData(references || []);
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error fetching references:', error);
       toast({
         title: "Error",
-        description: "Error al cargar las referencias",
+        description: "Hubo un error al cargar las referencias.",
         variant: "destructive"
       });
     } finally {
@@ -53,24 +66,6 @@ const ReferenceTable = () => {
 
   useEffect(() => {
     fetchReferences();
-
-    // Listen for real-time updates
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'references'
-        },
-        () => fetchReferences()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const handleSort = (field: SortField) => {
@@ -104,8 +99,8 @@ const ReferenceTable = () => {
         return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
       }
       
-      const aStr = String(aValue);
-      const bStr = String(bValue);
+      const aStr = String(aValue || '');
+      const bStr = String(bValue || '');
       return sortDirection === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
     });
 
@@ -120,7 +115,7 @@ const ReferenceTable = () => {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Filtrar por referencia..."
+              placeholder="Filtrar por Referencia..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -195,11 +190,29 @@ const ReferenceTable = () => {
               </th>
               <th className="px-6 py-3 text-left">
                 <button 
-                  onClick={() => handleSort('created_at')}
+                  onClick={() => handleSort('lanzamiento_capsula')}
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
                 >
-                  Fecha Creación
-                  <SortIcon field="created_at" />
+                  Lanzamiento Cápsula
+                  <SortIcon field="lanzamiento_capsula" />
+                </button>
+              </th>
+              <th className="px-6 py-3 text-left">
+                <button 
+                  onClick={() => handleSort('fecha_desbloqueo')}
+                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                >
+                  Fecha Desbloqueo
+                  <SortIcon field="fecha_desbloqueo" />
+                </button>
+              </th>
+              <th className="px-6 py-3 text-left">
+                <button 
+                  onClick={() => handleSort('dias_desbloqueado')}
+                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                >
+                  Días Desbloqueado
+                  <SortIcon field="dias_desbloqueado" />
                 </button>
               </th>
               <th className="px-6 py-3 text-left">
@@ -210,13 +223,13 @@ const ReferenceTable = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={8} className="px-6 py-8 text-center text-muted-foreground">
                   Cargando referencias...
                 </td>
               </tr>
             ) : filteredAndSortedData.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={8} className="px-6 py-8 text-center text-muted-foreground">
                   No se encontraron referencias
                 </td>
               </tr>
@@ -233,10 +246,18 @@ const ReferenceTable = () => {
                     {item.cantidad}
                   </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">
-                    {item.ingreso_a_bodega ? new Date(item.ingreso_a_bodega).toLocaleDateString() : 'No asignado'}
+                    {item.ingreso_a_bodega || '-'}
                   </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">
-                    {new Date(item.created_at).toLocaleDateString()}
+                    {item.lanzamiento_capsula || '-'}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                    {item.fecha_desbloqueo || '-'}
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                      {item.dias_desbloqueado || 0}
+                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">

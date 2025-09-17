@@ -41,7 +41,15 @@ const NewReferenceDialog = () => {
           cantidad: data.cantidad
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating reference:', error);
+        toast({
+          title: "Error",
+          description: "Hubo un error al crear la referencia. Por favor, intenta de nuevo.",
+          variant: "destructive"
+        });
+        return;
+      }
 
       toast({
         title: "Referencia creada",
@@ -49,10 +57,11 @@ const NewReferenceDialog = () => {
       });
       reset();
       setOpen(false);
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error creating reference:', error);
       toast({
         title: "Error",
-        description: error.message || "Error al crear la referencia",
+        description: "Hubo un error inesperado. Por favor, intenta de nuevo.",
         variant: "destructive"
       });
     }
