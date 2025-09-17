@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      references: {
+        Row: {
+          cantidad: number
+          created_at: string
+          curva: string
+          dias_desbloqueado: number | null
+          fecha_desbloqueo: string | null
+          id: string
+          ingreso_a_bodega: string | null
+          lanzamiento_capsula: string | null
+          referencia: string
+          updated_at: string
+        }
+        Insert: {
+          cantidad: number
+          created_at?: string
+          curva: string
+          dias_desbloqueado?: number | null
+          fecha_desbloqueo?: string | null
+          id?: string
+          ingreso_a_bodega?: string | null
+          lanzamiento_capsula?: string | null
+          referencia: string
+          updated_at?: string
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string
+          curva?: string
+          dias_desbloqueado?: number | null
+          fecha_desbloqueo?: string | null
+          id?: string
+          ingreso_a_bodega?: string | null
+          lanzamiento_capsula?: string | null
+          referencia?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

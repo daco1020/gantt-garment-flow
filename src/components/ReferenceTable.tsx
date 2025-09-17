@@ -1,41 +1,77 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronUp, ChevronDown, Edit, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Reference {
   id: string;
-  curve: string;
-  quantity: number;
-  warehouseEntry: string;
-  capsuleLaunch: string;
-  unlockDate: string;
-  unlockedDays: number;
+  referencia: string;
+  curva: string;
+  cantidad: number;
+  ingreso_a_bodega: string | null;
+  lanzamiento_capsula: string | null;
+  fecha_desbloqueo: string | null;
+  dias_desbloqueado: number;
+  created_at: string;
 }
-
-const mockData: Reference[] = [
-  {
-    id: "7xjQXii5bZiVniqX9ZCP",
-    curve: "XS-S-M-L-XL",
-    quantity: 75,
-    warehouseEntry: "20 sep 2025",
-    capsuleLaunch: "10 sep 2025",
-    unlockDate: "11 oct 2025",
-    unlockedDays: 26
-  }
-];
 
 type SortField = keyof Reference;
 type SortDirection = 'asc' | 'desc';
 
 const ReferenceTable = () => {
-  const [data, setData] = useState<Reference[]>(mockData);
-  const [sortField, setSortField] = useState<SortField>('id');
+  const [data, setData] = useState<Reference[]>([]);
+  const [sortField, setSortField] = useState<SortField>('referencia');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [searchTerm, setSearchTerm] = useState('');
   const [monthFilter, setMonthFilter] = useState('all');
   const [dayFilter, setDayFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetchReferences = async () => {
+    try {
+      const { data: references, error } = await supabase
+        .from('references')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setData(references || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Error al cargar las referencias",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReferences();
+
+    // Listen for real-time updates
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'references'
+        },
+        () => fetchReferences()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -55,7 +91,7 @@ const ReferenceTable = () => {
 
   const filteredAndSortedData = data
     .filter(item => {
-      if (searchTerm && !item.id.toLowerCase().includes(searchTerm.toLowerCase())) {
+      if (searchTerm && !item.referencia.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
       return true;
@@ -84,7 +120,7 @@ const ReferenceTable = () => {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Filtrar por ID..."
+              placeholder="Filtrar por referencia..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -123,65 +159,47 @@ const ReferenceTable = () => {
             <tr>
               <th className="px-6 py-3 text-left">
                 <button 
-                  onClick={() => handleSort('id')}
+                  onClick={() => handleSort('referencia')}
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
                 >
-                  ID
-                  <SortIcon field="id" />
+                  Referencia
+                  <SortIcon field="referencia" />
                 </button>
               </th>
               <th className="px-6 py-3 text-left">
                 <button 
-                  onClick={() => handleSort('curve')}
+                  onClick={() => handleSort('curva')}
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
                 >
                   Curva
-                  <SortIcon field="curve" />
+                  <SortIcon field="curva" />
                 </button>
               </th>
               <th className="px-6 py-3 text-left">
                 <button 
-                  onClick={() => handleSort('quantity')}
+                  onClick={() => handleSort('cantidad')}
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
                 >
                   Cantidad
-                  <SortIcon field="quantity" />
+                  <SortIcon field="cantidad" />
                 </button>
               </th>
               <th className="px-6 py-3 text-left">
                 <button 
-                  onClick={() => handleSort('warehouseEntry')}
+                  onClick={() => handleSort('ingreso_a_bodega')}
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
                 >
                   Ingreso a Bodega
-                  <SortIcon field="warehouseEntry" />
+                  <SortIcon field="ingreso_a_bodega" />
                 </button>
               </th>
               <th className="px-6 py-3 text-left">
                 <button 
-                  onClick={() => handleSort('capsuleLaunch')}
+                  onClick={() => handleSort('created_at')}
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
                 >
-                  Lanzamiento Cápsula
-                  <SortIcon field="capsuleLaunch" />
-                </button>
-              </th>
-              <th className="px-6 py-3 text-left">
-                <button 
-                  onClick={() => handleSort('unlockDate')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
-                >
-                  Fecha Desbloqueo
-                  <SortIcon field="unlockDate" />
-                </button>
-              </th>
-              <th className="px-6 py-3 text-left">
-                <button 
-                  onClick={() => handleSort('unlockedDays')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
-                >
-                  Días Desbloqueado
-                  <SortIcon field="unlockedDays" />
+                  Fecha Creación
+                  <SortIcon field="created_at" />
                 </button>
               </th>
               <th className="px-6 py-3 text-left">
@@ -190,43 +208,49 @@ const ReferenceTable = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredAndSortedData.map((item) => (
-              <tr key={item.id} className="border-b border-border hover:bg-table-hover transition-colors">
-                <td className="px-6 py-4 text-sm font-mono text-foreground">
-                  {item.id}
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">
-                  {item.curve}
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">
-                  {item.quantity}
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">
-                  {item.warehouseEntry}
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">
-                  {item.capsuleLaunch}
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">
-                  {item.unlockDate}
-                </td>
-                <td className="px-6 py-4 text-sm">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-                    {item.unlockedDays}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                  Cargando referencias...
                 </td>
               </tr>
-            ))}
+            ) : filteredAndSortedData.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                  No se encontraron referencias
+                </td>
+              </tr>
+            ) : (
+              filteredAndSortedData.map((item) => (
+                <tr key={item.id} className="border-b border-border hover:bg-table-hover transition-colors">
+                  <td className="px-6 py-4 text-sm font-mono text-foreground">
+                    {item.referencia}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                    {item.curva}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-foreground">
+                    {item.cantidad}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                    {item.ingreso_a_bodega ? new Date(item.ingreso_a_bodega).toLocaleDateString() : 'No asignado'}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                    {new Date(item.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

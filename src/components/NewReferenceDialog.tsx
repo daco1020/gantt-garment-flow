@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NewReferenceForm {
   referencia: string;
@@ -29,14 +30,32 @@ const NewReferenceDialog = () => {
 
   const selectedCurva = watch("curva");
 
-  const onSubmit = (data: NewReferenceForm) => {
-    console.log("Nueva referencia:", data);
-    toast({
-      title: "Referencia creada",
-      description: `La referencia ${data.referencia} ha sido creada exitosamente.`,
-    });
-    reset();
-    setOpen(false);
+  const onSubmit = async (data: NewReferenceForm) => {
+    try {
+      const { error } = await supabase
+        .from('references')
+        .insert({
+          referencia: data.referencia,
+          ingreso_a_bodega: data.ingresoABodega || null,
+          curva: data.curva,
+          cantidad: data.cantidad
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Referencia creada",
+        description: `La referencia ${data.referencia} ha sido creada exitosamente.`,
+      });
+      reset();
+      setOpen(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Error al crear la referencia",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleOpenChange = (newOpen: boolean) => {
