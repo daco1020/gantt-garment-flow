@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useLaunchDate } from "@/contexts/LaunchDateContext";
 
 interface NewReferenceForm {
   referencia: string;
@@ -26,6 +27,7 @@ const curvaOptions = [
 const NewReferenceDialog = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const { launchDate } = useLaunchDate();
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<NewReferenceForm>();
 
   const selectedCurva = watch("curva");
@@ -37,6 +39,7 @@ const NewReferenceDialog = () => {
         .insert({
           referencia: data.referencia,
           ingreso_a_bodega: data.ingresoABodega || null,
+          lanzamiento_capsula: launchDate?.toISOString().split('T')[0] || null,
           curva: data.curva,
           cantidad: data.cantidad
         });
