@@ -66,6 +66,28 @@ const ReferenceTable = () => {
 
   useEffect(() => {
     fetchReferences();
+
+    // Set up real-time subscription for new references
+    const channel = supabase
+      .channel('references-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'references'
+        },
+        (payload) => {
+          console.log('New reference added:', payload);
+          // Add the new reference to the current data
+          setData(prevData => [payload.new as Reference, ...prevData]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleSort = (field: SortField) => {
