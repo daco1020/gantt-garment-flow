@@ -3,8 +3,10 @@ import { ChevronUp, ChevronDown, Edit, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import EditReferenceDialog from "./EditReferenceDialog";
 
 interface Reference {
   id: string;
@@ -30,6 +32,10 @@ const ReferenceTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [monthFilter, setMonthFilter] = useState('all');
   const [dayFilter, setDayFilter] = useState('all');
+  const [editingReference, setEditingReference] = useState<Reference | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [referenceToDelete, setReferenceToDelete] = useState<Reference | null>(null);
   const { toast } = useToast();
 
   // Fetch references from Supabase
@@ -89,6 +95,58 @@ const ReferenceTable = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const handleEdit = (reference: Reference) => {
+    setEditingReference(reference);
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = (reference: Reference) => {
+    setReferenceToDelete(reference);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!referenceToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('references')
+        .delete()
+        .eq('id', referenceToDelete.id);
+
+      if (error) {
+        console.error('Error deleting reference:', error);
+        toast({
+          title: "Error",
+          description: "Hubo un error al eliminar la referencia.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Referencia eliminada",
+        description: `La referencia ${referenceToDelete.referencia} ha sido eliminada exitosamente.`,
+      });
+
+      // Remove the reference from the local state
+      setData(prevData => prevData.filter(ref => ref.id !== referenceToDelete.id));
+      setDeleteDialogOpen(false);
+      setReferenceToDelete(null);
+    } catch (error) {
+      console.error('Error deleting reference:', error);
+      toast({
+        title: "Error",
+        description: "Hubo un error inesperado al eliminar la referencia.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleReferenceUpdated = () => {
+    fetchReferences();
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -283,10 +341,20 @@ const ReferenceTable = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleEdit(item)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(item)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -298,7 +366,30 @@ const ReferenceTable = () => {
         </table>
       </div>
 
-      
+      <EditReferenceDialog
+        reference={editingReference}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onReferenceUpdated={handleReferenceUpdated}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Esto eliminará permanentemente la referencia{" "}
+              <strong>{referenceToDelete?.referencia}</strong> de la base de datos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
