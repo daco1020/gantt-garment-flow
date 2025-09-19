@@ -335,9 +335,46 @@ const ReferenceTable = () => {
                     {item.fecha_desbloqueo || '-'}
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-                      {item.dias_desbloqueado || 0}
-                    </span>
+                    {(() => {
+                      const today = new Date();
+                      const launchDate = item.lanzamiento_capsula ? new Date(item.lanzamiento_capsula) : null;
+                      
+                      if (!launchDate) {
+                        return (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground">
+                            Sin fecha de lanzamiento
+                          </span>
+                        );
+                      }
+
+                      // Si la fecha actual es menor a la fecha de lanzamiento
+                      if (today < launchDate) {
+                        const daysUntilLaunch = Math.ceil((launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">
+                            {daysUntilLaunch} días para lanzar
+                          </span>
+                        );
+                      }
+
+                      // Si ya pasó la fecha de lanzamiento, calcular días restantes de las 3 semanas (21 días)
+                      const daysSinceLaunch = Math.floor((today.getTime() - launchDate.getTime()) / (1000 * 60 * 60 * 24));
+                      const daysRemaining = Math.max(0, 21 - daysSinceLaunch);
+                      
+                      if (daysRemaining > 0) {
+                        return (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
+                            {daysRemaining} días restantes
+                          </span>
+                        );
+                      } else {
+                        return (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                            Desbloqueado
+                          </span>
+                        );
+                      }
+                    })()}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
