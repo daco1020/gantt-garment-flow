@@ -332,7 +332,24 @@ const ReferenceTable = () => {
                     {item.lanzamiento_capsula || '-'}
                   </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">
-                    {item.fecha_desbloqueo || '-'}
+                    {(() => {
+                      const today = new Date();
+                      const launchDate = item.lanzamiento_capsula ? new Date(item.lanzamiento_capsula) : null;
+                      
+                      if (!launchDate) {
+                        return '-';
+                      }
+
+                      // Si la fecha actual es menor a la fecha de lanzamiento, mostrar la fecha de lanzamiento
+                      if (today < launchDate) {
+                        return launchDate.toLocaleDateString('es-ES');
+                      }
+
+                      // Si ya pasó la fecha de lanzamiento, mostrar la fecha de desbloqueo (21 días después del lanzamiento)
+                      const unlockDate = new Date(launchDate);
+                      unlockDate.setDate(unlockDate.getDate() + 21);
+                      return unlockDate.toLocaleDateString('es-ES');
+                    })()}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     {(() => {
