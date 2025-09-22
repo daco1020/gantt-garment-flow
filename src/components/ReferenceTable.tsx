@@ -364,31 +364,45 @@ const ReferenceTable = () => {
                         );
                       }
 
-                      // Si la fecha inicial es mayor a la fecha de lanzamiento, mostrar días pendientes para lanzar
-                      if (today > launchDate) {
-                        const daysSinceLaunch = Math.floor((today.getTime() - launchDate.getTime()) / (1000 * 60 * 60 * 24));
-                        const daysRemaining = Math.max(0, 21 - daysSinceLaunch);
-                        
-                        if (daysRemaining > 0) {
-                          return (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
-                              {daysRemaining} días restantes
-                            </span>
-                          );
-                        } else {
-                          return (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-                              Desbloqueado
-                            </span>
-                          );
-                        }
+                      // Antes del lanzamiento: mostrar días para lanzar
+                      if (today < launchDate) {
+                        const daysUntilLaunch = Math.ceil((launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">
+                            {daysUntilLaunch} días para lanzar
+                          </span>
+                        );
                       }
 
-                      // Si la fecha actual es menor o igual a la fecha de lanzamiento
-                      const daysUntilLaunch = Math.ceil((launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                      // Después del lanzamiento: el conteo de 21 días comienza en la fecha base
+                      // Si el ingreso es posterior al lanzamiento, la base es la fecha de ingreso; si no, es la fecha de lanzamiento
+                      const ingresoDate = item.ingreso_a_bodega ? new Date(item.ingreso_a_bodega) : null;
+                      const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+
+                      // Si aún no llega la fecha base (ej. ingreso futuro), mostrar días para ingresar
+                      if (today < baseDate) {
+                        const daysUntilBase = Math.ceil((baseDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">
+                            {daysUntilBase} días para ingresar
+                          </span>
+                        );
+                      }
+
+                      const daysSinceBase = Math.floor((today.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
+                      const daysRemaining = Math.max(0, 21 - daysSinceBase);
+                      
+                      if (daysRemaining > 0) {
+                        return (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
+                            {daysRemaining} días restantes
+                          </span>
+                        );
+                      }
+
                       return (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">
-                          {daysUntilLaunch} días para lanzar
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                          Desbloqueado
                         </span>
                       );
                     })()}
