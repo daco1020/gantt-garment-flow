@@ -73,7 +73,7 @@ const ReferenceTable = () => {
   useEffect(() => {
     fetchReferences();
 
-    // Set up real-time subscription for new references
+    // Set up real-time subscription for references changes
     const channel = supabase
       .channel('references-changes')
       .on(
@@ -87,6 +87,38 @@ const ReferenceTable = () => {
           console.log('New reference added:', payload);
           // Add the new reference to the current data
           setData(prevData => [payload.new as Reference, ...prevData]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'references'
+        },
+        (payload) => {
+          console.log('Reference updated:', payload);
+          // Update the existing reference in the data
+          setData(prevData => 
+            prevData.map(ref => 
+              ref.id === payload.new.id ? payload.new as Reference : ref
+            )
+          );
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'references'
+        },
+        (payload) => {
+          console.log('Reference deleted:', payload);
+          // Remove the deleted reference from the data
+          setData(prevData => 
+            prevData.filter(ref => ref.id !== payload.old.id)
+          );
         }
       )
       .subscribe();
