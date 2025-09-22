@@ -365,28 +365,35 @@ const ReferenceTable = () => {
                   </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">
                     {(() => {
-                      const today = new Date();
-                      const launchDate = item.lanzamiento_capsula ? new Date(item.lanzamiento_capsula) : null;
-                      
+                      const parseDate = (s?: string | null) => {
+                        if (!s) return null;
+                        const [y, m, d] = s.split('-').map(Number);
+                        if (!y || !m || !d) return null;
+                        return new Date(y, m - 1, d);
+                      };
+                      const launchDate = parseDate(item.lanzamiento_capsula);
+                      const ingresoDate = parseDate(item.ingreso_a_bodega);
                       if (!launchDate) {
                         return '-';
                       }
-
-                      // Si la fecha actual es menor a la fecha de lanzamiento, mostrar la fecha de lanzamiento
-                      if (today < launchDate) {
-                        return launchDate.toLocaleDateString('es-ES');
-                      }
-
-                      // Si ya pasó la fecha de lanzamiento, mostrar la fecha de desbloqueo (21 días después del lanzamiento)
-                      const unlockDate = new Date(launchDate);
+                      // Base para el desbloqueo: si el ingreso es posterior al lanzamiento, usar ingreso; de lo contrario, lanzamiento
+                      const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+                      const unlockDate = new Date(baseDate);
                       unlockDate.setDate(unlockDate.getDate() + 21);
                       return unlockDate.toLocaleDateString('es-ES');
                     })()}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     {(() => {
+                      const parseDate = (s?: string | null) => {
+                        if (!s) return null;
+                        const [y, m, d] = s.split('-').map(Number);
+                        if (!y || !m || !d) return null;
+                        return new Date(y, m - 1, d);
+                      };
                       const today = new Date();
-                      const launchDate = item.lanzamiento_capsula ? new Date(item.lanzamiento_capsula) : null;
+                      const launchDate = parseDate(item.lanzamiento_capsula);
+                      const ingresoDate = parseDate(item.ingreso_a_bodega);
                       
                       if (!launchDate) {
                         return (
@@ -408,7 +415,6 @@ const ReferenceTable = () => {
 
                       // Después del lanzamiento: el conteo de 21 días comienza en la fecha base
                       // Si el ingreso es posterior al lanzamiento, la base es la fecha de ingreso; si no, es la fecha de lanzamiento
-                      const ingresoDate = item.ingreso_a_bodega ? new Date(item.ingreso_a_bodega) : null;
                       const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
 
                       // Si aún no llega la fecha base (ej. ingreso futuro), mostrar días para ingresar
