@@ -22,6 +22,7 @@ export type Database = {
           dias_desbloqueado: number | null
           fecha_desbloqueo: string | null
           id: string
+          imagen_url: string | null
           ingreso_a_bodega: string | null
           lanzamiento_capsula: string | null
           referencia: string
@@ -34,6 +35,7 @@ export type Database = {
           dias_desbloqueado?: number | null
           fecha_desbloqueo?: string | null
           id?: string
+          imagen_url?: string | null
           ingreso_a_bodega?: string | null
           lanzamiento_capsula?: string | null
           referencia: string
@@ -46,6 +48,7 @@ export type Database = {
           dias_desbloqueado?: number | null
           fecha_desbloqueo?: string | null
           id?: string
+          imagen_url?: string | null
           ingreso_a_bodega?: string | null
           lanzamiento_capsula?: string | null
           referencia?: string

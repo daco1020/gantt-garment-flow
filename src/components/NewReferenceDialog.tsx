@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useLaunchDate } from "@/contexts/LaunchDateContext";
@@ -15,6 +15,7 @@ interface NewReferenceForm {
   ingresoABodega?: string;
   curva: string;
   cantidad: number;
+  imagen?: FileList;
 }
 
 const curvaOptions = [
@@ -26,6 +27,7 @@ const curvaOptions = [
 
 const NewReferenceDialog = () => {
   const [open, setOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const { launchDate } = useLaunchDate();
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<NewReferenceForm>();
@@ -34,6 +36,35 @@ const NewReferenceDialog = () => {
 
   const onSubmit = async (data: NewReferenceForm) => {
     try {
+      setUploading(true);
+      let imagenUrl = null;
+
+      // Upload image if selected
+      if (data.imagen && data.imagen.length > 0) {
+        const file = data.imagen[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('reference-images')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          console.error('Error uploading image:', uploadError);
+          toast({
+            title: "Error",
+            description: "Hubo un error al subir la imagen. Continuando sin imagen.",
+            variant: "destructive"
+          });
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('reference-images')
+            .getPublicUrl(filePath);
+          imagenUrl = publicUrl;
+        }
+      }
+
       const { error } = await supabase
         .from('references')
         .insert({
@@ -41,7 +72,8 @@ const NewReferenceDialog = () => {
           ingreso_a_bodega: data.ingresoABodega || null,
           lanzamiento_capsula: launchDate?.toISOString().split('T')[0] || null,
           curva: data.curva,
-          cantidad: data.cantidad
+          cantidad: data.cantidad,
+          imagen_url: imagenUrl
         });
 
       if (error) {
@@ -67,6 +99,8 @@ const NewReferenceDialog = () => {
         description: "Hubo un error inesperado. Por favor, intenta de nuevo.",
         variant: "destructive"
       });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -156,16 +190,32 @@ const NewReferenceDialog = () => {
             )}
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="imagen">Imagen de Referencia</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="imagen"
+                type="file"
+                accept="image/*"
+                {...register("imagen")}
+                className="cursor-pointer"
+              />
+              <Upload className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground">Campo opcional - Formatos: JPG, PNG, WEBP</p>
+          </div>
+
           <div className="flex justify-end gap-3">
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
+              disabled={uploading}
             >
               Cancelar
             </Button>
-            <Button type="submit">
-              Crear Referencia
+            <Button type="submit" disabled={uploading}>
+              {uploading ? "Subiendo..." : "Crear Referencia"}
             </Button>
           </div>
         </form>
