@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNotification } from "@/hooks/use-notification";
 import EditReferenceDialog from "./EditReferenceDialog";
 
 interface Reference {
@@ -37,6 +38,54 @@ const ReferenceTable = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [referenceToDelete, setReferenceToDelete] = useState<Reference | null>(null);
   const { toast } = useToast();
+  const { permission, requestPermission, sendNotification } = useNotification();
+
+  // Solicitar permisos de notificación al cargar
+  useEffect(() => {
+    if (permission === "default") {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
+
+  // Verificar referencias próximas a vencer (1 día antes)
+  const checkExpiringReferences = (refs: Reference[]) => {
+    const parseDate = (s?: string | null) => {
+      if (!s) return null;
+      const [y, m, d] = s.split('-').map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(y, m - 1, d);
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    refs.forEach(ref => {
+      const launchDate = parseDate(ref.lanzamiento_capsula);
+      const ingresoDate = parseDate(ref.ingreso_a_bodega);
+      
+      if (!launchDate) return;
+
+      const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+      const unlockDate = new Date(baseDate);
+      unlockDate.setDate(unlockDate.getDate() + 21);
+      unlockDate.setHours(0, 0, 0, 0);
+
+      const diffTime = unlockDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // Notificar si vence en 1 día
+      if (diffDays === 1) {
+        sendNotification(
+          `⚠️ Referencia por vencer`,
+          {
+            body: `${ref.referencia} - ${ref.curva} se desbloquea mañana (${unlockDate.toLocaleDateString('es-ES')})`,
+            tag: `ref-${ref.id}`,
+            requireInteraction: true,
+          }
+        );
+      }
+    });
+  };
 
   // Fetch references from Supabase
   const fetchReferences = async () => {
@@ -58,6 +107,8 @@ const ReferenceTable = () => {
       }
 
       setData(references || []);
+      // Verificar referencias próximas a vencer
+      checkExpiringReferences(references || []);
     } catch (error) {
       console.error('Error fetching references:', error);
       toast({
