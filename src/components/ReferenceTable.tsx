@@ -33,6 +33,7 @@ const ReferenceTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [monthFilter, setMonthFilter] = useState('all');
   const [dayFilter, setDayFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'unlocked', 'locked'
   const [editingReference, setEditingReference] = useState<Reference | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -249,9 +250,68 @@ const ReferenceTable = () => {
 
   const filteredAndSortedData = data
     .filter(item => {
+      // Filtro por búsqueda de referencia
       if (searchTerm && !item.referencia.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
       }
+
+      // Calcular días desbloqueado para los filtros
+      const parseDate = (s?: string | null) => {
+        if (!s) return null;
+        const [y, m, d] = s.split('-').map(Number);
+        if (!y || !m || !d) return null;
+        return new Date(y, m - 1, d);
+      };
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const launchDate = parseDate(item.lanzamiento_capsula);
+      const ingresoDate = parseDate(item.ingreso_a_bodega);
+
+      // Filtro por estado de desbloqueo
+      if (statusFilter !== 'all') {
+        if (!launchDate) {
+          if (statusFilter === 'unlocked') return false;
+        } else {
+          const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+          const unlockDate = new Date(baseDate);
+          unlockDate.setDate(unlockDate.getDate() + 21);
+          unlockDate.setHours(0, 0, 0, 0);
+          
+          const isUnlocked = today >= unlockDate;
+          
+          if (statusFilter === 'unlocked' && !isUnlocked) return false;
+          if (statusFilter === 'locked' && isUnlocked) return false;
+        }
+      }
+
+      // Filtro por mes de desbloqueo
+      if (monthFilter !== 'all' && launchDate) {
+        const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+        const unlockDate = new Date(baseDate);
+        unlockDate.setDate(unlockDate.getDate() + 21);
+        const month = unlockDate.getMonth();
+        
+        if (monthFilter === 'september' && month !== 8) return false;
+        if (monthFilter === 'october' && month !== 9) return false;
+        if (monthFilter === 'november' && month !== 10) return false;
+      }
+
+      // Filtro por rango de días hasta desbloqueo
+      if (dayFilter !== 'all' && launchDate) {
+        const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+        const unlockDate = new Date(baseDate);
+        unlockDate.setDate(unlockDate.getDate() + 21);
+        unlockDate.setHours(0, 0, 0, 0);
+        
+        const diffTime = unlockDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (dayFilter === '1-7' && (diffDays < 1 || diffDays > 7)) return false;
+        if (dayFilter === '8-15' && (diffDays < 8 || diffDays > 15)) return false;
+        if (dayFilter === '16-30' && (diffDays < 16 || diffDays > 30)) return false;
+      }
+
       return true;
     })
     .sort((a, b) => {
@@ -274,7 +334,7 @@ const ReferenceTable = () => {
           Detalles de la Referencia
         </h2>
         
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center flex-wrap">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -284,6 +344,17 @@ const ReferenceTable = () => {
               className="pl-10"
             />
           </div>
+          
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las Referencias</SelectItem>
+              <SelectItem value="unlocked">Desbloqueadas</SelectItem>
+              <SelectItem value="locked">Bloqueadas</SelectItem>
+            </SelectContent>
+          </Select>
           
           <Select value={monthFilter} onValueChange={setMonthFilter}>
             <SelectTrigger className="w-48">
