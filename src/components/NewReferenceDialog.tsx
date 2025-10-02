@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Clipboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useLaunchDate } from "@/contexts/LaunchDateContext";
@@ -28,27 +28,56 @@ const curvaOptions = [
 const NewReferenceDialog = () => {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [pastedImage, setPastedImage] = useState<File | null>(null);
   const { toast } = useToast();
   const { launchDate } = useLaunchDate();
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<NewReferenceForm>();
 
   const selectedCurva = watch("curva");
 
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          if (blob) {
+            const file = new File([blob], `pasted-image-${Date.now()}.png`, { type: blob.type });
+            setPastedImage(file);
+            toast({
+              title: "Imagen pegada",
+              description: "La imagen se ha pegado correctamente.",
+            });
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [open, toast]);
+
   const onSubmit = async (data: NewReferenceForm) => {
     try {
       setUploading(true);
       let imagenUrl = null;
 
-      // Upload image if selected
-      if (data.imagen && data.imagen.length > 0) {
-        const file = data.imagen[0];
-        const fileExt = file.name.split('.').pop();
+      // Upload image if selected or pasted
+      const imageFile = pastedImage || (data.imagen && data.imagen.length > 0 ? data.imagen[0] : null);
+      
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('reference-images')
-          .upload(filePath, file);
+          .upload(filePath, imageFile);
 
         if (uploadError) {
           console.error('Error uploading image:', uploadError);
@@ -108,6 +137,7 @@ const NewReferenceDialog = () => {
     setOpen(newOpen);
     if (!newOpen) {
       reset();
+      setPastedImage(null);
     }
   };
 
@@ -192,17 +222,34 @@ const NewReferenceDialog = () => {
 
           <div className="space-y-2">
             <Label htmlFor="imagen">Imagen de Referencia</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="imagen"
-                type="file"
-                accept="image/*"
-                {...register("imagen")}
-                className="cursor-pointer"
-              />
-              <Upload className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <p className="text-xs text-muted-foreground">Campo opcional - Formatos: JPG, PNG, WEBP</p>
+            {pastedImage ? (
+              <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/50">
+                <Clipboard className="h-4 w-4 text-primary" />
+                <span className="text-sm flex-1">{pastedImage.name}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPastedImage(null)}
+                >
+                  Eliminar
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input
+                  id="imagen"
+                  type="file"
+                  accept="image/*"
+                  {...register("imagen")}
+                  className="cursor-pointer"
+                />
+                <Upload className="h-4 w-4 text-muted-foreground" />
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Campo opcional - Puedes subir un archivo o pegar una imagen copiada (Ctrl+V)
+            </p>
           </div>
 
           <div className="flex justify-end gap-3">
