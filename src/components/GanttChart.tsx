@@ -42,14 +42,7 @@ const GanttChart = ({ items }: GanttChartProps) => {
     return (daysSinceStart / totalDays) * 100;
   };
 
-  const sampleItems = items.length > 0 ? items : [
-    {
-      id: "XiI5bZiVniqX9ZCP",
-      start: new Date(2025, 8, 22),
-      end: new Date(2025, 9, 13),
-      progress: 65
-    }
-  ];
+  const displayItems = items.length > 0 ? items : [];
 
   return (
     <div className="bg-card rounded-lg border border-border p-6">
@@ -67,33 +60,39 @@ const GanttChart = ({ items }: GanttChartProps) => {
           </div>
           
           {/* Gantt bars */}
-          <div className="relative h-8 bg-gantt-background rounded border border-border">
-            {sampleItems.map((item) => {
-              const startPos = calculatePosition(item.start);
-              const endPos = calculatePosition(item.end);
-              const width = endPos - startPos;
-              
-              return (
-                <div key={item.id} className="absolute top-1 bottom-1 flex items-center">
-                  <div 
-                    className="h-full bg-gantt-primary rounded-sm shadow-sm"
-                    style={{
-                      left: `${startPos}%`,
-                      width: `${width}%`
-                    }}
-                  />
-                  <span 
-                    className="absolute text-xs font-medium text-muted-foreground whitespace-nowrap"
-                    style={{
-                      left: `${startPos - 8}%`,
-                      top: '-20px'
-                    }}
-                  >
-                    {item.id}
-                  </span>
-                </div>
-              );
-            })}
+          <div className="relative min-h-[200px] bg-gantt-background rounded border border-border p-4">
+            {displayItems.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                No hay referencias con fechas configuradas
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {displayItems.map((item, index) => {
+                  const startPos = calculatePosition(item.start);
+                  const endPos = calculatePosition(item.end);
+                  const width = endPos - startPos;
+                  
+                  return (
+                    <div key={item.id} className="relative h-8">
+                      <div 
+                        className="absolute h-full bg-gantt-primary rounded-sm shadow-sm flex items-center justify-between px-2"
+                        style={{
+                          left: `${startPos}%`,
+                          width: `${width}%`
+                        }}
+                      >
+                        <span className="text-xs font-medium text-primary-foreground truncate">
+                          {item.id}
+                        </span>
+                        <span className="text-xs text-primary-foreground/80">
+                          {item.progress}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
           
           {/* Legend */}
