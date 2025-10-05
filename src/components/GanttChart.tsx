@@ -9,9 +9,10 @@ interface GanttItem {
 
 interface GanttChartProps {
   items: GanttItem[];
+  launchDate?: Date;
 }
 
-const GanttChart = ({ items }: GanttChartProps) => {
+const GanttChart = ({ items, launchDate }: GanttChartProps) => {
   const [hoveredItem, setHoveredItem] = useState<GanttItem | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -68,9 +69,11 @@ const GanttChart = ({ items }: GanttChartProps) => {
   };
 
   const displayItems = items.length > 0 ? items : [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayPosition = timeline.length > 0 ? calculatePosition(today) : 0;
+  const launchDateNormalized = launchDate ? new Date(launchDate) : null;
+  if (launchDateNormalized) {
+    launchDateNormalized.setHours(0, 0, 0, 0);
+  }
+  const launchPosition = launchDateNormalized && timeline.length > 0 ? calculatePosition(launchDateNormalized) : -1;
 
   const handleMouseEnter = (item: GanttItem, e: React.MouseEvent) => {
     setHoveredItem(item);
@@ -120,11 +123,11 @@ const GanttChart = ({ items }: GanttChartProps) => {
               </div>
             ) : (
               <>
-                {/* Today line */}
-                {todayPosition >= 0 && todayPosition <= 100 && (
+                {/* Launch date line */}
+                {launchPosition >= 0 && launchPosition <= 100 && (
                   <div 
                     className="absolute top-0 bottom-0 w-0.5 bg-yellow-500 z-10 pointer-events-none"
-                    style={{ left: `${todayPosition}%` }}
+                    style={{ left: `${launchPosition}%` }}
                   >
                     <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-yellow-500 rounded-full"></div>
                   </div>
@@ -167,7 +170,7 @@ const GanttChart = ({ items }: GanttChartProps) => {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-0.5 h-3 bg-yellow-500"></div>
-              <span>Hoy</span>
+              <span>Fecha de Lanzamiento</span>
             </div>
           </div>
         </div>

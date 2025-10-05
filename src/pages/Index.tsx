@@ -105,7 +105,7 @@ const IndexContent = () => {
       <Header />
       
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        <GanttChart items={ganttItems} />
+        <GanttChart items={ganttItems} launchDate={launchDate} />
         <ReferenceTable />
       </main>
     </div>
