@@ -101,79 +101,90 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
       </h2>
       
       <div className="space-y-6">
-        {/* Timeline */}
-        <div className="relative">
-          <div className="flex justify-between text-sm text-muted-foreground mb-2">
-            {timeline.length > 0 && timeline.filter((_, i) => {
-              const step = Math.max(1, Math.floor(timeline.length / 5));
-              return i % step === 0 || i === timeline.length - 1;
-            }).map((date, i) => (
-              <span key={i}>{formatDate(date)}</span>
-            ))}
+        {displayItems.length === 0 ? (
+          <div className="flex items-center justify-center h-[200px] text-muted-foreground bg-gantt-background rounded border border-border">
+            No hay referencias con fechas configuradas
           </div>
-          
-          {/* Gantt bars */}
-          <div 
-            className="relative min-h-[200px] bg-gantt-background rounded border border-border p-4"
-            onMouseMove={handleMouseMove}
-          >
-            {displayItems.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                No hay referencias con fechas configuradas
-              </div>
-            ) : (
-              <>
-                {/* Launch date line */}
-                {launchPosition >= 0 && launchPosition <= 100 && (
-                  <div 
-                    className="absolute top-0 bottom-0 w-0.5 bg-yellow-500 z-10 pointer-events-none"
-                    style={{ left: `${launchPosition}%` }}
-                  >
-                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-yellow-500 rounded-full"></div>
+        ) : (
+          <div className="relative">
+            {/* Gantt chart with labels on left */}
+            <div className="flex gap-4">
+              {/* Reference names column */}
+              <div className="w-32 flex-shrink-0 space-y-3 pt-8">
+                {displayItems.map((item) => (
+                  <div key={item.id} className="h-8 flex items-center">
+                    <span className="text-sm font-medium text-foreground truncate">
+                      {item.id}
+                    </span>
                   </div>
-                )}
-                
-                <div className="space-y-3">
-                  {displayItems.map((item) => {
-                    const startPos = calculatePosition(item.start);
-                    const endPos = calculatePosition(item.end);
-                    const width = endPos - startPos;
-                    
-                    return (
-                      <div key={item.id} className="relative h-8">
-                        <div 
-                          className="absolute h-full bg-gantt-primary rounded-sm shadow-sm flex items-center justify-between px-2 cursor-pointer hover:bg-gantt-primary/80 transition-colors"
-                          style={{
-                            left: `${startPos}%`,
-                            width: `${width}%`
-                          }}
-                          onMouseEnter={(e) => handleMouseEnter(item, e)}
-                          onMouseLeave={handleMouseLeave}
-                        >
-                          <span className="text-xs font-medium text-primary-foreground truncate">
-                            {item.id}
-                          </span>
+                ))}
+              </div>
+              
+              {/* Chart area */}
+              <div className="flex-1">
+                {/* Gantt bars */}
+                <div 
+                  className="relative min-h-[200px] bg-gantt-background rounded border border-border p-4"
+                  onMouseMove={handleMouseMove}
+                >
+                  {/* Launch date line */}
+                  {launchPosition >= 0 && launchPosition <= 100 && (
+                    <div 
+                      className="absolute top-0 bottom-0 w-0.5 bg-yellow-500 z-10 pointer-events-none"
+                      style={{ left: `${launchPosition}%` }}
+                    >
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-3">
+                    {displayItems.map((item) => {
+                      const startPos = calculatePosition(item.start);
+                      const endPos = calculatePosition(item.end);
+                      const width = endPos - startPos;
+                      
+                      return (
+                        <div key={item.id} className="relative h-8">
+                          <div 
+                            className="absolute h-full bg-gantt-primary rounded-sm shadow-sm cursor-pointer hover:bg-gantt-primary/80 transition-colors"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${width}%`
+                            }}
+                            onMouseEnter={(e) => handleMouseEnter(item, e)}
+                            onMouseLeave={handleMouseLeave}
+                          />
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
-          
-          {/* Legend */}
-          <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-gantt-primary rounded-sm"></div>
-              <span>Tiempo hasta Lanzamiento</span>
+                
+                {/* Timeline at bottom */}
+                <div className="flex justify-between text-xs text-muted-foreground mt-2 px-4">
+                  {timeline.length > 0 && timeline.filter((_, i) => {
+                    const step = Math.max(1, Math.floor(timeline.length / 5));
+                    return i % step === 0 || i === timeline.length - 1;
+                  }).map((date, i) => (
+                    <span key={i}>{formatDate(date)}</span>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-0.5 h-3 bg-yellow-500"></div>
-              <span>Fecha de Lanzamiento</span>
+            
+            {/* Legend */}
+            <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-gantt-primary rounded-sm"></div>
+                <span>Tiempo hasta Lanzamiento</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-0.5 h-3 bg-yellow-500"></div>
+                <span>Fecha de Lanzamiento</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Tooltip */}
