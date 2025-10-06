@@ -126,6 +126,8 @@ const NewReferenceDialog = () => {
       });
       reset();
       setOpen(false);
+      // Reload the page to show the new reference
+      window.location.reload();
     } catch (error) {
       console.error('Error creating reference:', error);
       toast({
