@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronUp, ChevronDown, Edit, Trash2, Search, ImageIcon } from "lucide-react";
+import { ChevronUp, ChevronDown, Edit, Trash2, Search, ImageIcon, FileSpreadsheet } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -356,12 +357,93 @@ const ReferenceTable = () => {
     }
   };
 
+  const handleExportToExcel = () => {
+    // Preparar datos para exportación
+    const exportData = filteredAndSortedData.map(item => {
+      const parseDate = (s?: string | null) => {
+        if (!s) return null;
+        const [y, m, d] = s.split('-').map(Number);
+        if (!y || !m || !d) return null;
+        return new Date(y, m - 1, d);
+      };
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const launchDate = parseDate(item.lanzamiento_capsula);
+      const ingresoDate = parseDate(item.ingreso_a_bodega);
+      
+      // Calcular fecha de desbloqueo
+      let fechaDesbloqueo = '';
+      if (launchDate) {
+        const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+        const unlockDate = new Date(baseDate);
+        unlockDate.setDate(unlockDate.getDate() + 21);
+        fechaDesbloqueo = unlockDate.toLocaleDateString('es-ES');
+      }
+
+      // Calcular días desbloqueado/estado
+      let diasEstado = '';
+      if (!launchDate) {
+        diasEstado = 'Sin fecha de lanzamiento';
+      } else if (today < launchDate) {
+        const daysUntilLaunch = Math.ceil((launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        diasEstado = `${daysUntilLaunch} días para lanzar`;
+      } else {
+        const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+        if (today < baseDate) {
+          const daysUntilBase = Math.ceil((baseDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          diasEstado = `${daysUntilBase} días para ingresar`;
+        } else {
+          const daysSinceBase = Math.floor((today.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
+          const daysRemaining = Math.max(0, 21 - daysSinceBase);
+          diasEstado = daysRemaining > 0 ? `${daysRemaining} días restantes` : 'Desbloqueado';
+        }
+      }
+
+      return {
+        'Referencia': item.referencia,
+        'Curva': item.curva,
+        'Cantidad': item.cantidad,
+        'Ingreso a Bodega': item.ingreso_a_bodega || '',
+        'Lanzamiento Cápsula': item.lanzamiento_capsula || '',
+        'Fecha Desbloqueo': fechaDesbloqueo,
+        'Estado': diasEstado
+      };
+    });
+
+    // Crear libro de trabajo
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Referencias');
+
+    // Generar archivo Excel
+    const fileName = `referencias_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+
+    toast({
+      title: "Exportación exitosa",
+      description: `Se han exportado ${exportData.length} referencias a Excel.`,
+    });
+  };
+
   return (
     <div className="bg-card rounded-lg border border-border">
       <div className="p-6 border-b border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-4">
-          Detalles de la Referencia
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground">
+            Detalles de la Referencia
+          </h2>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={handleExportToExcel}
+            disabled={filteredAndSortedData.length === 0}
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Exportar a Excel
+          </Button>
+        </div>
         
         <div className="flex gap-4 items-center flex-wrap">
           <div className="relative flex-1 max-w-sm">
