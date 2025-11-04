@@ -17,6 +17,7 @@ interface NewReferenceForm {
   cantidad: number;
   imagen?: FileList;
   color?: string;
+  color2?: string;
   cantidadColores?: string;
 }
 
@@ -65,6 +66,7 @@ const NewReferenceDialog = () => {
   const selectedCurva = watch("curva");
   const selectedCantidadColores = watch("cantidadColores");
   const selectedColor = watch("color");
+  const selectedColor2 = watch("color2");
 
   useEffect(() => {
     if (!open) return;
@@ -125,6 +127,14 @@ const NewReferenceDialog = () => {
         }
       }
 
+      // Combine colors if two colors are selected
+      let colorValue = null;
+      if (data.cantidadColores === "2 colores" && data.color && data.color2) {
+        colorValue = `${data.color}, ${data.color2}`;
+      } else if (data.color) {
+        colorValue = data.color;
+      }
+
       const { error } = await supabase
         .from('references')
         .insert({
@@ -134,7 +144,7 @@ const NewReferenceDialog = () => {
           curva: data.curva,
           cantidad: data.cantidad,
           imagen_url: imagenUrl,
-          color: data.color || null,
+          color: colorValue,
           cantidad_colores: data.cantidadColores || null
         });
 
@@ -269,22 +279,45 @@ const NewReferenceDialog = () => {
             <p className="text-xs text-muted-foreground">Campo opcional</p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="color">Color</Label>
-            <Select onValueChange={(value) => setValue("color", value)} value={selectedColor}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un color" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                {colorOptions.map((color) => (
-                  <SelectItem key={color} value={color}>
-                    {color}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">Campo opcional</p>
-          </div>
+          {selectedCantidadColores && (
+            <div className="space-y-2">
+              <Label htmlFor="color">
+                {selectedCantidadColores === "2 colores" ? "Color 1" : "Color"}
+              </Label>
+              <Select onValueChange={(value) => setValue("color", value)} value={selectedColor}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona un color" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {colorOptions.map((color) => (
+                    <SelectItem key={color} value={color}>
+                      {color}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Campo opcional</p>
+            </div>
+          )}
+
+          {selectedCantidadColores === "2 colores" && (
+            <div className="space-y-2">
+              <Label htmlFor="color2">Color 2</Label>
+              <Select onValueChange={(value) => setValue("color2", value)} value={selectedColor2}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona el segundo color" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {colorOptions.map((color) => (
+                    <SelectItem key={color} value={color}>
+                      {color}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Campo opcional</p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="imagen">Imagen de Referencia</Label>
