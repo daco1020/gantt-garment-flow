@@ -17,6 +17,8 @@ export type Database = {
       references: {
         Row: {
           cantidad: number
+          cantidad_colores: string | null
+          color: string | null
           created_at: string
           curva: string
           dias_desbloqueado: number | null
@@ -30,6 +32,8 @@ export type Database = {
         }
         Insert: {
           cantidad: number
+          cantidad_colores?: string | null
+          color?: string | null
           created_at?: string
           curva: string
           dias_desbloqueado?: number | null
@@ -43,6 +47,8 @@ export type Database = {
         }
         Update: {
           cantidad?: number
+          cantidad_colores?: string | null
+          color?: string | null
           created_at?: string
           curva?: string
           dias_desbloqueado?: number | null

@@ -16,6 +16,8 @@ interface NewReferenceForm {
   curva: string;
   cantidad: number;
   imagen?: FileList;
+  color?: string;
+  cantidadColores?: string;
 }
 
 const curvaOptions = [
@@ -39,6 +41,7 @@ const NewReferenceDialog = () => {
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<NewReferenceForm>();
 
   const selectedCurva = watch("curva");
+  const selectedCantidadColores = watch("cantidadColores");
 
   useEffect(() => {
     if (!open) return;
@@ -107,7 +110,9 @@ const NewReferenceDialog = () => {
           lanzamiento_capsula: launchDate?.toISOString().split('T')[0] || null,
           curva: data.curva,
           cantidad: data.cantidad,
-          imagen_url: imagenUrl
+          imagen_url: imagenUrl,
+          color: data.color || null,
+          cantidad_colores: data.cantidadColores || null
         });
 
       if (error) {
@@ -225,6 +230,31 @@ const NewReferenceDialog = () => {
             {errors.cantidad && (
               <p className="text-sm text-destructive">{errors.cantidad.message}</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cantidadColores">Cantidad de Colores</Label>
+            <Select onValueChange={(value) => setValue("cantidadColores", value)} value={selectedCantidadColores}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona cantidad de colores" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1 color">1 color</SelectItem>
+                <SelectItem value="2 colores">2 colores</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">Campo opcional</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="color">Color</Label>
+            <Input
+              id="color"
+              type="color"
+              {...register("color")}
+              className="h-10 cursor-pointer"
+            />
+            <p className="text-xs text-muted-foreground">Campo opcional - Selecciona un color</p>
           </div>
 
           <div className="space-y-2">
