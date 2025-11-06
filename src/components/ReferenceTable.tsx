@@ -24,6 +24,7 @@ interface Reference {
   imagen_url: string | null;
   color: string | null;
   cantidad_colores: string | null;
+  distribucion: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -408,6 +409,7 @@ const ReferenceTable = () => {
         'Cantidad': item.cantidad,
         'Color': item.color || '',
         'Cantidad de Colores': item.cantidad_colores || '',
+        'Distribución': item.distribucion || '',
         'Ingreso a Bodega': item.ingreso_a_bodega || '',
         'Lanzamiento Cápsula': item.lanzamiento_capsula || '',
         'Fecha Desbloqueo': fechaDesbloqueo,
@@ -535,6 +537,9 @@ const ReferenceTable = () => {
                 <span className="text-sm font-medium text-foreground">Colores</span>
               </th>
               <th className="px-6 py-3 text-left">
+                <span className="text-sm font-medium text-foreground">Distribución</span>
+              </th>
+              <th className="px-6 py-3 text-left">
                 <button 
                   onClick={() => handleSort('ingreso_a_bodega')}
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
@@ -578,13 +583,13 @@ const ReferenceTable = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={10} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={11} className="px-6 py-8 text-center text-muted-foreground">
                   Cargando referencias...
                 </td>
               </tr>
             ) : paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-6 py-8 text-center text-muted-foreground">
+                <td colSpan={11} className="px-6 py-8 text-center text-muted-foreground">
                   No se encontraron referencias
                 </td>
               </tr>
@@ -628,6 +633,9 @@ const ReferenceTable = () => {
                       )}
                       {!item.color && !item.cantidad_colores && '-'}
                     </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                    {item.distribucion || '-'}
                   </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">
                     {item.ingreso_a_bodega || '-'}
