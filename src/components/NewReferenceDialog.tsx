@@ -19,6 +19,7 @@ interface NewReferenceForm {
   color?: string;
   color2?: string;
   cantidadColores?: string;
+  distribucion?: string;
 }
 
 const curvaOptions = [
@@ -147,7 +148,8 @@ const NewReferenceDialog = () => {
           cantidad: data.cantidad,
           imagen_url: imagenUrl,
           color: colorValue,
-          cantidad_colores: data.cantidadColores || null
+          cantidad_colores: data.cantidadColores || null,
+          distribucion: data.distribucion || null
         });
 
       if (error) {
@@ -265,6 +267,16 @@ const NewReferenceDialog = () => {
             {errors.cantidad && (
               <p className="text-sm text-destructive">{errors.cantidad.message}</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="distribucion">Distribución</Label>
+            <Input
+              id="distribucion"
+              placeholder="Ej: 10-20-30-15"
+              {...register("distribucion")}
+            />
+            <p className="text-xs text-muted-foreground">Campo opcional</p>
           </div>
 
           <div className="space-y-2">

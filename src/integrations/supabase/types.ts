@@ -22,6 +22,7 @@ export type Database = {
           created_at: string
           curva: string
           dias_desbloqueado: number | null
+          distribucion: string | null
           fecha_desbloqueo: string | null
           id: string
           imagen_url: string | null
@@ -37,6 +38,7 @@ export type Database = {
           created_at?: string
           curva: string
           dias_desbloqueado?: number | null
+          distribucion?: string | null
           fecha_desbloqueo?: string | null
           id?: string
           imagen_url?: string | null
@@ -52,6 +54,7 @@ export type Database = {
           created_at?: string
           curva?: string
           dias_desbloqueado?: number | null
+          distribucion?: string | null
           fecha_desbloqueo?: string | null
           id?: string
           imagen_url?: string | null

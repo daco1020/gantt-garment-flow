@@ -27,6 +27,7 @@ interface EditReferenceForm {
   lanzamientoCapsula?: string;
   curva: string;
   cantidad: number;
+  distribucion?: string;
 }
 
 interface EditReferenceDialogProps {
@@ -61,6 +62,7 @@ const EditReferenceDialog = ({ reference, open, onOpenChange, onReferenceUpdated
       setValue("cantidad", reference.cantidad);
       setValue("ingresoABodega", reference.ingreso_a_bodega || "");
       setValue("lanzamientoCapsula", reference.lanzamiento_capsula || "");
+      setValue("distribucion", (reference as any).distribucion || "");
     }
   }, [reference, open, setValue]);
 
@@ -75,7 +77,8 @@ const EditReferenceDialog = ({ reference, open, onOpenChange, onReferenceUpdated
           ingreso_a_bodega: data.ingresoABodega || null,
           lanzamiento_capsula: data.lanzamientoCapsula || null,
           curva: data.curva,
-          cantidad: data.cantidad
+          cantidad: data.cantidad,
+          distribucion: data.distribucion || null
         })
         .eq('id', reference.id);
 
@@ -193,6 +196,16 @@ const EditReferenceDialog = ({ reference, open, onOpenChange, onReferenceUpdated
             {errors.cantidad && (
               <p className="text-sm text-destructive">{errors.cantidad.message}</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="distribucion">Distribución</Label>
+            <Input
+              id="distribucion"
+              placeholder="Ej: 10-20-30-15"
+              {...register("distribucion")}
+            />
+            <p className="text-xs text-muted-foreground">Campo opcional</p>
           </div>
 
           <div className="flex justify-end gap-3">

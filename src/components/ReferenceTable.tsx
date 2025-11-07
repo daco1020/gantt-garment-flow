@@ -118,9 +118,9 @@ const ReferenceTable = () => {
         return;
       }
 
-      setData(references || []);
+      setData((references as any) || []);
       // Verificar referencias próximas a vencer
-      checkExpiringReferences(references || []);
+      checkExpiringReferences((references as any) || []);
     } catch (error) {
       console.error('Error fetching references:', error);
       toast({
