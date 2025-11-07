@@ -198,106 +198,152 @@ const NewReferenceDialog = () => {
           Nueva Referencia
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Crear Nueva Referencia</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="referencia">Referencia *</Label>
-            <Input
-              id="referencia"
-              placeholder="Ej: XiI5bZiVniqX9ZCP"
-              {...register("referencia", { 
-                required: "La referencia es obligatoria" 
-              })}
-            />
-            {errors.referencia && (
-              <p className="text-sm text-destructive">{errors.referencia.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="ingresoABodega">Ingreso a Bodega</Label>
-            <Input
-              id="ingresoABodega"
-              type="date"
-              {...register("ingresoABodega")}
-            />
-            <p className="text-xs text-muted-foreground">Campo opcional</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="curva">Curva *</Label>
-            <Select onValueChange={(value) => setValue("curva", value)} value={selectedCurva}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona una curva" />
-              </SelectTrigger>
-              <SelectContent>
-                {curvaOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.curva && (
-              <p className="text-sm text-destructive">{errors.curva.message}</p>
-            )}
-            <input
-              type="hidden"
-              {...register("curva", { required: "La curva es obligatoria" })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cantidad">Cantidad *</Label>
-            <Input
-              id="cantidad"
-              type="number"
-              min="1"
-              placeholder="Ej: 75"
-              {...register("cantidad", { 
-                required: "La cantidad es obligatoria",
-                min: { value: 1, message: "La cantidad debe ser mayor a 0" },
-                valueAsNumber: true
-              })}
-            />
-            {errors.cantidad && (
-              <p className="text-sm text-destructive">{errors.cantidad.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="distribucion">Distribución</Label>
-            <Input
-              id="distribucion"
-              placeholder="Ej: 10-20-30-15"
-              {...register("distribucion")}
-            />
-            <p className="text-xs text-muted-foreground">Campo opcional</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cantidadColores">Cantidad de Colores</Label>
-            <Select onValueChange={(value) => setValue("cantidadColores", value)} value={selectedCantidadColores}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona cantidad de colores" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1 color">1 color</SelectItem>
-                <SelectItem value="2 colores">2 colores</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">Campo opcional</p>
-          </div>
-
-          {selectedCantidadColores && (
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="color">
-                {selectedCantidadColores === "2 colores" ? "Color 1" : "Color"}
-              </Label>
+              <Label htmlFor="referencia">Referencia *</Label>
+              <Input
+                id="referencia"
+                placeholder="Ej: XiI5bZiVniqX9ZCP"
+                {...register("referencia", { 
+                  required: "La referencia es obligatoria" 
+                })}
+              />
+              {errors.referencia && (
+                <p className="text-sm text-destructive">{errors.referencia.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="curva">Curva *</Label>
+              <Select onValueChange={(value) => setValue("curva", value)} value={selectedCurva}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona una curva" />
+                </SelectTrigger>
+                <SelectContent>
+                  {curvaOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.curva && (
+                <p className="text-sm text-destructive">{errors.curva.message}</p>
+              )}
+              <input
+                type="hidden"
+                {...register("curva", { required: "La curva es obligatoria" })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="ingresoABodega">Ingreso a Bodega</Label>
+              <Input
+                id="ingresoABodega"
+                type="date"
+                {...register("ingresoABodega")}
+              />
+              <p className="text-xs text-muted-foreground">Campo opcional</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cantidad">Cantidad *</Label>
+              <Input
+                id="cantidad"
+                type="number"
+                min="1"
+                placeholder="Ej: 75"
+                {...register("cantidad", { 
+                  required: "La cantidad es obligatoria",
+                  min: { value: 1, message: "La cantidad debe ser mayor a 0" },
+                  valueAsNumber: true
+                })}
+              />
+              {errors.cantidad && (
+                <p className="text-sm text-destructive">{errors.cantidad.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="cantidadColores">Cantidad de Colores</Label>
+              <Select onValueChange={(value) => setValue("cantidadColores", value)} value={selectedCantidadColores}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona cantidad de colores" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1 color">1 color</SelectItem>
+                  <SelectItem value="2 colores">2 colores</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Campo opcional</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="distribucion">Distribución</Label>
+              <Input
+                id="distribucion"
+                placeholder="Ej: 10-20-30-15"
+                {...register("distribucion")}
+              />
+              <p className="text-xs text-muted-foreground">Campo opcional</p>
+            </div>
+          </div>
+
+          {selectedCantidadColores && selectedCantidadColores === "2 colores" ? (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="color">Color 1</Label>
+                <Select 
+                  onValueChange={(value) => setValue("color", value)} 
+                  value={selectedColor || undefined}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un color" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {colorOptions.map((color) => (
+                      <SelectItem key={color} value={color}>
+                        {color}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Campo opcional</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="color2">Color 2</Label>
+                <Select 
+                  onValueChange={(value) => setValue("color2", value)} 
+                  value={selectedColor2 || undefined}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona el segundo color" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {colorOptions.map((color) => (
+                      <SelectItem key={color} value={color}>
+                        {color}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Campo opcional</p>
+              </div>
+            </div>
+          ) : selectedCantidadColores ? (
+            <div className="space-y-2">
+              <Label htmlFor="color">Color</Label>
               <Select 
                 onValueChange={(value) => setValue("color", value)} 
                 value={selectedColor || undefined}
@@ -315,29 +361,7 @@ const NewReferenceDialog = () => {
               </Select>
               <p className="text-xs text-muted-foreground">Campo opcional</p>
             </div>
-          )}
-
-          {selectedCantidadColores === "2 colores" && (
-            <div className="space-y-2">
-              <Label htmlFor="color2">Color 2</Label>
-              <Select 
-                onValueChange={(value) => setValue("color2", value)} 
-                value={selectedColor2 || undefined}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona el segundo color" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  {colorOptions.map((color) => (
-                    <SelectItem key={color} value={color}>
-                      {color}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">Campo opcional</p>
-            </div>
-          )}
+          ) : null}
 
           <div className="space-y-2">
             <Label htmlFor="imagen">Imagen de Referencia</Label>
