@@ -198,7 +198,7 @@ const NewReferenceDialog = () => {
           Nueva Referencia
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Crear Nueva Referencia</DialogTitle>
         </DialogHeader>
