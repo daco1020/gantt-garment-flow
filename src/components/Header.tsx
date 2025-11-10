@@ -35,11 +35,15 @@ const Header = () => {
     'XS-S-M-L-XL',
     'S-M-L-XL',
     'S-M-L',
+    'XS-S-M-L',
     'XL-XXL-XXXL',
     'XL-XXL-3XL',
     '28-30-32-34-36',
     '28-30-32-34-36-40',
+    '06-08-10-12',
     '06-08-10-12-14',
+    '14-16-18-20',
+    '14-16-18-20-22',
     'ONE-SIZE',
     'M-L-XL-XXL'
   ];
@@ -253,7 +257,7 @@ const Header = () => {
                 <li><span className="font-medium text-foreground">referencia</span> - Código de referencia</li>
                 <li><span className="font-medium text-foreground">cantidad</span> - Cantidad numérica</li>
                 <li>
-                  <span className="font-medium text-foreground">curva</span> - Tallas (valores válidos: XS-S-M-L-XL, S-M-L-XL, S-M-L, XL-XXL-XXXL, XL-XXL-3XL, 28-30-32-34-36, 28-30-32-34-36-40, 06-08-10-12-14, ONE-SIZE, M-L-XL-XXL)
+                  <span className="font-medium text-foreground">curva</span> - Tallas (valores válidos: XS-S-M-L-XL, S-M-L-XL, S-M-L, XS-S-M-L, XL-XXL-XXXL, XL-XXL-3XL, 28-30-32-34-36, 28-30-32-34-36-40, 06-08-10-12, 06-08-10-12-14, 14-16-18-20, 14-16-18-20-22, ONE-SIZE, M-L-XL-XXL)
                 </li>
               </ul>
             </div>
