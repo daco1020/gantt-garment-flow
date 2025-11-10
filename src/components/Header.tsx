@@ -133,6 +133,35 @@ const Header = () => {
 
       console.log("References to insert:", references);
 
+      // Check for duplicates within the CSV file
+      const referenciasInCSV = references.map(r => r.referencia);
+      const duplicatesInCSV = referenciasInCSV.filter((item, index) => referenciasInCSV.indexOf(item) !== index);
+      
+      if (duplicatesInCSV.length > 0) {
+        const uniqueDuplicates = [...new Set(duplicatesInCSV)];
+        throw new Error(
+          `Referencias duplicadas en el archivo:\n${uniqueDuplicates.join('\n')}\n\nCada referencia debe aparecer solo una vez en el archivo.`
+        );
+      }
+
+      // Check for existing references in the database
+      const { data: existingRefs, error: checkError } = await supabase
+        .from("references")
+        .select("referencia")
+        .in("referencia", referenciasInCSV);
+
+      if (checkError) {
+        console.error("Error checking existing references:", checkError);
+        throw checkError;
+      }
+
+      if (existingRefs && existingRefs.length > 0) {
+        const existingRefNames = existingRefs.map(r => r.referencia);
+        throw new Error(
+          `Las siguientes referencias ya existen en la base de datos:\n${existingRefNames.join('\n')}\n\nPor favor, elimine estas referencias del archivo o elimínelas de la base de datos primero.`
+        );
+      }
+
       const { data: insertedData, error } = await supabase
         .from("references")
         .insert(references)
