@@ -13,7 +13,7 @@ interface Reference {
   id: string;
   referencia: string;
   lanzamiento_capsula: string | null;
-  fecha_desbloqueo: string | null;
+  ingreso_a_bodega: string | null;
   imagen_url: string | null;
   curva: string;
   color: string | null;
@@ -51,7 +51,7 @@ const CardViewContent = () => {
     try {
       const { data, error } = await supabase
         .from('references')
-        .select('id, referencia, lanzamiento_capsula, fecha_desbloqueo, imagen_url, curva, color')
+        .select('id, referencia, lanzamiento_capsula, ingreso_a_bodega, imagen_url, curva, color')
         .order('lanzamiento_capsula', { ascending: true });
 
       if (error) throw error;
@@ -70,6 +70,26 @@ const CardViewContent = () => {
     } catch {
       return 'Fecha inválida';
     }
+  };
+
+  const calculateUnlockDate = (ref: Reference): string | null => {
+    const parseDate = (s?: string | null) => {
+      if (!s) return null;
+      const [y, m, d] = s.split('-').map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(y, m - 1, d);
+    };
+    
+    const launchDate = parseDate(ref.lanzamiento_capsula);
+    const ingresoDate = parseDate(ref.ingreso_a_bodega);
+    
+    if (!launchDate) return null;
+    
+    const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
+    const unlockDate = new Date(baseDate);
+    unlockDate.setDate(unlockDate.getDate() + 14);
+    
+    return unlockDate.toISOString().split('T')[0];
   };
 
   if (loading) {
@@ -168,7 +188,7 @@ const CardViewContent = () => {
                         Desbloqueo
                       </p>
                       <p className="text-sm font-semibold text-foreground">
-                        {formatDate(ref.fecha_desbloqueo)}
+                        {formatDate(calculateUnlockDate(ref))}
                       </p>
                     </div>
                   </div>
