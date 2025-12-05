@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Unlock, MapPin, LayoutGrid } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-
 interface Reference {
   id: string;
   referencia: string;
@@ -20,42 +19,32 @@ interface Reference {
   ubicacion: string | null;
   distribucion: string | null;
 }
-
 const CardViewContent = () => {
   const [references, setReferences] = useState<Reference[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchReferences();
 
     // Subscribe to real-time changes
-    const channel = supabase
-      .channel('card-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'references'
-        },
-        () => {
-          fetchReferences();
-        }
-      )
-      .subscribe();
-
+    const channel = supabase.channel('card-changes').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'references'
+    }, () => {
+      fetchReferences();
+    }).subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
-
   const fetchReferences = async () => {
     try {
-      const { data, error } = await supabase
-        .from('references')
-        .select('id, referencia, lanzamiento_capsula, ingreso_a_bodega, imagen_url, curva, color, ubicacion, distribucion')
-        .order('lanzamiento_capsula', { ascending: true });
-
+      const {
+        data,
+        error
+      } = await supabase.from('references').select('id, referencia, lanzamiento_capsula, ingreso_a_bodega, imagen_url, curva, color, ubicacion, distribucion').order('lanzamiento_capsula', {
+        ascending: true
+      });
       if (error) throw error;
       setReferences(data || []);
     } catch (error) {
@@ -64,16 +53,16 @@ const CardViewContent = () => {
       setLoading(false);
     }
   };
-
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'No definida';
     try {
-      return format(new Date(dateString), 'dd MMM yyyy', { locale: es });
+      return format(new Date(dateString), 'dd MMM yyyy', {
+        locale: es
+      });
     } catch {
       return 'Fecha inválida';
     }
   };
-
   const calculateUnlockDate = (ref: Reference): string | null => {
     const parseDate = (s?: string | null) => {
       if (!s) return null;
@@ -81,27 +70,20 @@ const CardViewContent = () => {
       if (!y || !m || !d) return null;
       return new Date(y, m - 1, d);
     };
-    
     const launchDate = parseDate(ref.lanzamiento_capsula);
     const ingresoDate = parseDate(ref.ingreso_a_bodega);
-    
     if (!launchDate) return null;
-    
     const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
     const unlockDate = new Date(baseDate);
     unlockDate.setDate(unlockDate.getDate() + 14);
-    
     return unlockDate.toISOString().split('T')[0];
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <main className="max-w-7xl mx-auto px-6 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} className="overflow-hidden">
+            {[...Array(6)].map((_, i) => <Card key={i} className="overflow-hidden">
                 <CardHeader>
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
@@ -109,16 +91,12 @@ const CardViewContent = () => {
                 <CardContent>
                   <Skeleton className="h-48 w-full" />
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </main>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-6">
@@ -129,21 +107,15 @@ const CardViewContent = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {references.map((ref) => (
-            <Card 
-              key={ref.id} 
-              className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-border bg-card"
-            >
+          {references.map(ref => <Card key={ref.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-border bg-card">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-xl font-semibold text-card-foreground">
                     {ref.referencia}
                   </CardTitle>
-                  {ref.color && (
-                    <Badge variant="outline" className="text-xs">
+                  {ref.color && <Badge variant="outline" className="text-xs">
                       {ref.color}
-                    </Badge>
-                  )}
+                    </Badge>}
                 </div>
                 <CardDescription className="text-sm text-muted-foreground">
                   {ref.curva}
@@ -153,26 +125,16 @@ const CardViewContent = () => {
               <CardContent className="space-y-4">
                 {/* Image */}
                 <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden">
-                  {ref.imagen_url ? (
-                    <img
-                      src={ref.imagen_url}
-                      alt={ref.referencia}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = '/placeholder.svg';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  {ref.imagen_url ? <img src={ref.imagen_url} alt={ref.referencia} className="w-full h-full object-cover" onError={e => {
+                e.currentTarget.src = '/placeholder.svg';
+              }} /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                       Sin imagen
-                    </div>
-                  )}
+                    </div>}
                 </div>
 
                 {/* Info */}
                 <div className="space-y-3 pt-2">
-                  {ref.distribucion && (
-                    <div className="flex items-start gap-3">
+                  {ref.distribucion && <div className="flex items-start gap-3">
                       <LayoutGrid className="w-4 h-4 mt-0.5 text-orange-500 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-muted-foreground">
@@ -182,11 +144,9 @@ const CardViewContent = () => {
                           {ref.distribucion}
                         </p>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
-                  {ref.ubicacion && (
-                    <div className="flex items-start gap-3">
+                  {ref.ubicacion && <div className="flex items-start gap-3">
                       <MapPin className="w-4 h-4 mt-0.5 text-violet-500 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-muted-foreground">
@@ -196,8 +156,7 @@ const CardViewContent = () => {
                           {ref.ubicacion}
                         </p>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
                   <div className="flex items-start gap-3">
                     <Calendar className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
@@ -224,26 +183,18 @@ const CardViewContent = () => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
 
-        {references.length === 0 && (
-          <div className="text-center py-12">
+        {references.length === 0 && <div className="text-center py-12">
             <p className="text-muted-foreground">No hay referencias para mostrar</p>
-          </div>
-        )}
+          </div>}
       </main>
-    </div>
-  );
+    </div>;
 };
-
 const CardView = () => {
-  return (
-    <LaunchDateProvider>
+  return <LaunchDateProvider>
       <CardViewContent />
-    </LaunchDateProvider>
-  );
+    </LaunchDateProvider>;
 };
-
 export default CardView;
