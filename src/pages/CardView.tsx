@@ -125,9 +125,9 @@ const CardViewContent = () => {
               <CardContent className="space-y-4">
                 {/* Image */}
                 <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden">
-                  {ref.imagen_url ? <img src={ref.imagen_url} alt={ref.referencia} className="w-full h-full object-cover" onError={e => {
+                  {ref.imagen_url ? <img src={ref.imagen_url} alt={ref.referencia} onError={e => {
                 e.currentTarget.src = '/placeholder.svg';
-              }} /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              }} className="w-full h-full object-contain" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                       Sin imagen
                     </div>}
                 </div>
