@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Unlock, MapPin, LayoutGrid, Search, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Unlock, MapPin, LayoutGrid, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -34,6 +35,7 @@ const CardViewContent = () => {
   const [loading, setLoading] = useState(true);
   const [searchRef, setSearchRef] = useState("");
   const [filterUbicacion, setFilterUbicacion] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedReference, setSelectedReference] = useState<Reference | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -42,6 +44,8 @@ const CardViewContent = () => {
     const unique = [...new Set(references.map(r => r.ubicacion).filter(Boolean))] as string[];
     return unique.sort();
   }, [references]);
+
+  const ITEMS_PER_PAGE = 20;
 
   // Filter references based on search and filter
   const filteredReferences = useMemo(() => {
@@ -52,6 +56,18 @@ const CardViewContent = () => {
       return matchesSearch && matchesUbicacion;
     });
   }, [references, searchRef, filterUbicacion]);
+
+  // Paginated references
+  const totalPages = Math.ceil(filteredReferences.length / ITEMS_PER_PAGE);
+  const paginatedReferences = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredReferences.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredReferences, currentPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchRef, filterUbicacion]);
 
   useEffect(() => {
     fetchReferences();
@@ -138,7 +154,8 @@ const CardViewContent = () => {
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground">Referencias</h1>
           <p className="text-muted-foreground mt-1">
-            {filteredReferences.length} de {references.length} referencias
+            Mostrando {paginatedReferences.length} de {filteredReferences.length} referencias
+            {filteredReferences.length !== references.length && ` (${references.length} total)`}
           </p>
         </div>
 
@@ -170,7 +187,7 @@ const CardViewContent = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredReferences.map(ref => <Card key={ref.id} onClick={() => handleCardClick(ref)} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-border bg-card cursor-pointer">
+          {paginatedReferences.map(ref => <Card key={ref.id} onClick={() => handleCardClick(ref)} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-border bg-card cursor-pointer">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-xl font-semibold text-card-foreground">
@@ -258,6 +275,33 @@ const CardViewContent = () => {
               {references.length === 0 ? "No hay referencias para mostrar" : "No se encontraron referencias con los filtros aplicados"}
             </p>
           </div>}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Anterior
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Página {currentPage} de {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Siguiente
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        )}
 
         <EditReferenceDialog
           reference={selectedReference}
