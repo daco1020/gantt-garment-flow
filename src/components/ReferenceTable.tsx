@@ -673,89 +673,89 @@ const ReferenceTable = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-max">
+        <table className="w-full table-fixed">
           <thead className="bg-table-header">
             <tr>
-              <th className="px-4 py-3 text-left">
+              <th className="w-10 px-2 py-3 text-left">
                 <Checkbox 
                   checked={paginatedData.length > 0 && paginatedData.every(item => selectedIds.has(item.id))}
                   onCheckedChange={handleSelectAll}
                 />
               </th>
-              <th className="px-6 py-3 text-left">
-                <span className="text-sm font-medium text-foreground">Imagen</span>
+              <th className="w-14 px-2 py-3 text-left">
+                <span className="text-xs font-medium text-foreground">Imagen</span>
               </th>
-              <th className="px-6 py-3 text-left">
+              <th className="w-[10%] px-3 py-3 text-left">
                 <button 
                   onClick={() => handleSort('referencia')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary"
                 >
                   Referencia
                   <SortIcon field="referencia" />
                 </button>
               </th>
-              <th className="px-6 py-3 text-left">
+              <th className="w-[10%] px-3 py-3 text-left">
                 <button 
                   onClick={() => handleSort('curva')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary"
                 >
                   Curva
                   <SortIcon field="curva" />
                 </button>
               </th>
-              <th className="px-6 py-3 text-left">
+              <th className="w-16 px-2 py-3 text-left">
                 <button 
                   onClick={() => handleSort('cantidad')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary"
                 >
-                  Cantidad
+                  Cant.
                   <SortIcon field="cantidad" />
                 </button>
               </th>
-              <th className="px-6 py-3 text-left">
-                <span className="text-sm font-medium text-foreground">Colores</span>
+              <th className="w-[12%] px-3 py-3 text-left">
+                <span className="text-xs font-medium text-foreground">Colores</span>
               </th>
-              <th className="px-6 py-3 text-left">
-                <span className="text-sm font-medium text-foreground">Distribución</span>
+              <th className="w-16 px-2 py-3 text-left">
+                <span className="text-xs font-medium text-foreground">Distrib.</span>
               </th>
-              <th className="px-6 py-3 text-left">
+              <th className="w-[10%] px-2 py-3 text-left">
                 <button 
                   onClick={() => handleSort('ingreso_a_bodega')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
                 >
-                  Ingreso a Bodega
+                  Bodega
                   <SortIcon field="ingreso_a_bodega" />
                 </button>
               </th>
-              <th className="px-6 py-3 text-left">
+              <th className="w-[10%] px-2 py-3 text-left">
                 <button 
                   onClick={() => handleSort('lanzamiento_capsula')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
                 >
-                  Lanzamiento Cápsula
+                  Lanzamiento
                   <SortIcon field="lanzamiento_capsula" />
                 </button>
               </th>
-              <th className="px-6 py-3 text-left">
+              <th className="w-[10%] px-2 py-3 text-left">
                 <button 
                   onClick={() => handleSort('fecha_desbloqueo')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
                 >
-                  Fecha Desbloqueo
+                  Desbloqueo
                   <SortIcon field="fecha_desbloqueo" />
                 </button>
               </th>
-              <th className="px-6 py-3 text-left">
+              <th className="w-16 px-2 py-3 text-left">
                 <button 
                   onClick={() => handleSort('dias_desbloqueado')}
-                  className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
                 >
-                  Días Desbloqueado
+                  Días
                   <SortIcon field="dias_desbloqueado" />
                 </button>
               </th>
-              <th className="px-6 py-3 text-left">
-                <span className="text-sm font-medium text-foreground">Acciones</span>
+              <th className="w-20 px-2 py-3 text-left">
+                <span className="text-xs font-medium text-foreground">Acciones</span>
               </th>
             </tr>
           </thead>
@@ -775,17 +775,17 @@ const ReferenceTable = () => {
             ) : (
               paginatedData.map((item) => (
                 <tr key={item.id} className="border-b border-border hover:bg-table-hover transition-colors">
-                  <td className="px-4 py-4">
+                  <td className="px-2 py-3">
                     <Checkbox 
                       checked={selectedIds.has(item.id)}
                       onCheckedChange={() => handleToggleSelect(item.id)}
                     />
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-2 py-3">
                     {item.imagen_url ? (
                       <button
                         onClick={() => handleImageClick(item.imagen_url)}
-                        className="relative w-12 h-12 rounded-md overflow-hidden border border-border hover:border-primary transition-colors cursor-pointer"
+                        className="relative w-10 h-10 rounded-md overflow-hidden border border-border hover:border-primary transition-colors cursor-pointer"
                       >
                         <img 
                           src={item.imagen_url} 
@@ -794,41 +794,41 @@ const ReferenceTable = () => {
                         />
                       </button>
                     ) : (
-                      <div className="w-12 h-12 rounded-md border border-border bg-muted flex items-center justify-center">
-                        <ImageIcon className="h-5 w-5 text-muted-foreground/50" />
+                      <div className="w-10 h-10 rounded-md border border-border bg-muted flex items-center justify-center">
+                        <ImageIcon className="h-4 w-4 text-muted-foreground/50" />
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-sm font-mono text-foreground">
+                  <td className="px-3 py-3 text-xs font-mono text-foreground truncate">
                     {item.referencia}
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                  <td className="px-3 py-3 text-xs text-muted-foreground truncate">
                     {item.curva}
                   </td>
-                  <td className="px-6 py-4 text-sm text-foreground">
+                  <td className="px-2 py-3 text-xs text-foreground">
                     {item.cantidad}
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
-                    <div className="flex flex-col gap-1">
+                  <td className="px-3 py-3 text-xs text-muted-foreground">
+                    <div className="flex flex-col gap-0.5">
                       {item.color && (
-                        <span className="font-medium text-foreground">{item.color}</span>
+                        <span className="font-medium text-foreground truncate">{item.color}</span>
                       )}
                       {item.cantidad_colores && (
-                        <span className="text-xs">({item.cantidad_colores} colores)</span>
+                        <span className="text-[10px]">({item.cantidad_colores})</span>
                       )}
                       {!item.color && !item.cantidad_colores && '-'}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                  <td className="px-2 py-3 text-xs text-muted-foreground truncate">
                     {item.distribucion || '-'}
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                  <td className="px-2 py-3 text-xs text-muted-foreground">
                     {item.ingreso_a_bodega || '-'}
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                  <td className="px-2 py-3 text-xs text-muted-foreground">
                     {item.lanzamiento_capsula || '-'}
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">
+                  <td className="px-2 py-3 text-xs text-muted-foreground">
                     {(() => {
                       const parseDate = (s?: string | null) => {
                         if (!s) return null;
@@ -848,7 +848,7 @@ const ReferenceTable = () => {
                       return unlockDate.toLocaleDateString('es-ES');
                     })()}
                   </td>
-                  <td className="px-6 py-4 text-sm">
+                  <td className="px-2 py-3 text-xs">
                     {(() => {
                       const parseDate = (s?: string | null) => {
                         if (!s) return null;
@@ -862,8 +862,8 @@ const ReferenceTable = () => {
                       
                       if (!launchDate) {
                         return (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted/50 text-muted-foreground">
-                            Sin fecha de lanzamiento
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-muted/50 text-muted-foreground">
+                            Sin fecha
                           </span>
                         );
                       }
@@ -872,8 +872,8 @@ const ReferenceTable = () => {
                       if (today < launchDate) {
                         const daysUntilLaunch = Math.ceil((launchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                         return (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">
-                            {daysUntilLaunch} días para lanzar
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-warning/10 text-warning whitespace-nowrap">
+                            {daysUntilLaunch}d lanzar
                           </span>
                         );
                       }
@@ -886,8 +886,8 @@ const ReferenceTable = () => {
                       if (today < baseDate) {
                         const daysUntilBase = Math.ceil((baseDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                         return (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">
-                            {daysUntilBase} días para ingresar
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-warning/10 text-warning whitespace-nowrap">
+                            {daysUntilBase}d ingresar
                           </span>
                         );
                       }
@@ -897,36 +897,36 @@ const ReferenceTable = () => {
                       
                       if (daysRemaining > 0) {
                         return (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
-                            {daysRemaining} días restantes
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-destructive/10 text-destructive whitespace-nowrap">
+                            {daysRemaining}d restantes
                           </span>
                         );
                       }
 
                       return (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-                          Desbloqueado
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-success/10 text-success">
+                          Desbloq.
                         </span>
                       );
                     })()}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
+                  <td className="px-2 py-3">
+                    <div className="flex items-center gap-1">
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-8 w-8 p-0"
+                        className="h-7 w-7 p-0"
                         onClick={() => handleEdit(item)}
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-3.5 w-3.5" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                         onClick={() => handleDelete(item)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </td>
