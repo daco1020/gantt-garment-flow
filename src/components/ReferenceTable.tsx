@@ -264,6 +264,11 @@ const ReferenceTable = () => {
     }
   };
 
+  const handleSelectAllFiltered = () => {
+    const allFilteredIds = new Set(filteredAndSortedData.map(item => item.id));
+    setSelectedIds(allFilteredIds);
+  };
+
   const handleBulkDelete = () => {
     if (selectedIds.size === 0) return;
     setBulkDeleteDialogOpen(true);
@@ -566,17 +571,35 @@ const ReferenceTable = () => {
           <h2 className="text-lg font-semibold text-foreground">
             Detalles de la Referencia
           </h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={handleSelectAllFiltered}
+              disabled={filteredAndSortedData.length === 0}
+            >
+              Seleccionar todas ({filteredAndSortedData.length})
+            </Button>
             {selectedIds.size > 0 && (
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                className="gap-2"
-                onClick={handleBulkDelete}
-              >
-                <Trash2 className="h-4 w-4" />
-                Eliminar ({selectedIds.size})
-              </Button>
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setSelectedIds(new Set())}
+                >
+                  Deseleccionar
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={handleBulkDelete}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Eliminar ({selectedIds.size})
+                </Button>
+              </>
             )}
             <Button 
               variant="outline" 
