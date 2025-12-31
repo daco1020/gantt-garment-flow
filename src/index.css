@@ -8,26 +8,26 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 224 13% 21%;
+    --background: 220 33% 98%;
+    --foreground: 224 13% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 13% 21%;
+    --card-foreground: 224 13% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 13% 21%;
+    --popover-foreground: 224 13% 15%;
 
-    --primary: 217 91% 60%;
+    --primary: 238 83% 66%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 224 13% 21%;
+    --secondary: 226 58% 95%;
+    --secondary-foreground: 238 83% 30%;
 
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
 
-    --accent: 220 14% 96%;
-    --accent-foreground: 224 13% 21%;
+    --accent: 238 83% 96%;
+    --accent-foreground: 238 83% 40%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -37,80 +37,73 @@ All colors MUST be HSL.
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 217 91% 60%;
+    --ring: 238 83% 66%;
 
     /* Gantt Flow specific colors */
-    --gantt-primary: 217 91% 60%;
-    --gantt-secondary: 213 97% 87%;
-    --gantt-background: 210 20% 98%;
-    --table-header: 220 14% 96%;
-    --table-row-hover: 220 14% 98%;
+    --gantt-primary: 238 83% 66%;
+    --gantt-secondary: 226 58% 90%;
+    --gantt-background: 220 33% 98%;
+    --table-header: 220 14% 94%;
+    --table-row-hover: 220 14% 97%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
+    --sidebar-background: 220 33% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
+    --sidebar-primary: 238 83% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 238 83% 94%;
+    --sidebar-accent-foreground: 238 83% 30%;
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 238.2 83.2% 66%;
   }
 
   .dark {
-    --background: 224 71% 4%;
+    --background: 230 40% 6%;
     --foreground: 210 20% 98%;
 
-    --card: 224 71% 4%;
+    --card: 230 40% 8%;
     --card-foreground: 210 20% 98%;
 
-    --popover: 224 71% 4%;
+    --popover: 230 40% 8%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 217 91% 60%;
+    --primary: 238 83% 66%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 32% 17%;
+    --secondary: 230 30% 15%;
     --secondary-foreground: 210 20% 98%;
 
-    --muted: 217 32% 17%;
+    --muted: 230 30% 15%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 217 32% 17%;
+    --accent: 238 83% 20%;
     --accent-foreground: 210 20% 98%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 62% 40%;
     --destructive-foreground: 210 20% 98%;
 
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
-    --ring: 217 91% 60%;
+    --border: 230 30% 15%;
+    --input: 230 30% 15%;
+    --ring: 238 83% 66%;
 
     /* Dark mode Gantt Flow colors */
-    --gantt-primary: 217 91% 60%;
-    --gantt-secondary: 217 50% 25%;
-    --gantt-background: 224 71% 4%;
-    --table-header: 217 32% 17%;
-    --table-row-hover: 217 32% 20%;
-    --sidebar-background: 240 5.9% 10%;
+    --gantt-primary: 238 83% 66%;
+    --gantt-secondary: 238 50% 20%;
+    --gantt-background: 230 40% 6%;
+    --table-header: 230 30% 12%;
+    --table-row-hover: 230 30% 15%;
+    --sidebar-background: 230 40% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 238 83% 66%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent: 230 30% 18%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 230 30% 18%;
+    --sidebar-ring: 238.2 83.2% 66%;
   }
 }
 
@@ -121,5 +114,24 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-background/60 backdrop-blur-md border border-white/10;
+  }
+  
+  .glass-card {
+    @apply bg-card/40 backdrop-blur-lg border border-white/5 shadow-xl;
+  }
+
+  .primary-gradient {
+    @apply bg-gradient-to-br from-[#818cf8] to-[#6366f1];
   }
 }

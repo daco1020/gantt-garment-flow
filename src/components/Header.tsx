@@ -54,26 +54,26 @@ const Header = () => {
   // Helper function to convert Excel serial date to ISO date string
   const excelDateToISOString = (value: any): string | null => {
     if (!value) return null;
-    
+
     // If it's already a string in YYYY-MM-DD format, return it
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
       return value.split('T')[0]; // Remove time part if present
     }
-    
+
     // If it's a number (Excel serial date)
     if (typeof value === 'number') {
       // Excel dates start from 1900-01-01, but Excel incorrectly treats 1900 as a leap year
       // So dates before March 1, 1900 need adjustment
       const excelEpoch = new Date(1899, 11, 30); // December 30, 1899
       const date = new Date(excelEpoch.getTime() + value * 86400000);
-      
+
       // Format as YYYY-MM-DD
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
-    
+
     // Try to parse as Date object
     try {
       const date = new Date(value);
@@ -86,14 +86,14 @@ const Header = () => {
     } catch (e) {
       console.error('Error parsing date:', value, e);
     }
-    
+
     return null;
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     console.log("File selected:", file?.name);
-    
+
     if (!file) {
       console.log("No file selected");
       return;
@@ -107,7 +107,7 @@ const Header = () => {
       const workbook = XLSX.read(data, { cellDates: true });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
-      
+
       console.log("Parsed data:", jsonData);
 
       const references = jsonData.map((row: any) => ({
@@ -139,7 +139,7 @@ const Header = () => {
       // Check for duplicates within the CSV file
       const referenciasInCSV = references.map(r => r.referencia);
       const duplicatesInCSV = referenciasInCSV.filter((item, index) => referenciasInCSV.indexOf(item) !== index);
-      
+
       if (duplicatesInCSV.length > 0) {
         const uniqueDuplicates = [...new Set(duplicatesInCSV)];
         throw new Error(
@@ -202,7 +202,7 @@ const Header = () => {
       }, 1500);
     } catch (error: any) {
       console.error("Error importing CSV:", error);
-      
+
       // Save error to import history
       if (file) {
         await supabase.from("import_history").insert({
@@ -212,7 +212,7 @@ const Header = () => {
           error_message: error?.message || "Error desconocido",
         });
       }
-      
+
       // Reset input on error too
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -231,16 +231,20 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-card border-b border-border px-6 py-4">
-        <div className="flex items-center justify-between">
+      <header className="sticky top-0 z-50 glass border-b border-border/50 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-semibold text-foreground">GanttFlow</h1>
+            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
+              <div className="p-2 primary-gradient rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
+                <BarChart3 className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                GanttFlow
+              </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -248,50 +252,55 @@ const Header = () => {
               onChange={handleFileChange}
               className="hidden"
             />
-            <Button
-              variant={location.pathname === '/' ? 'default' : 'outline'}
-              size="sm"
-              className="gap-2"
-              onClick={() => navigate('/')}
-            >
-              <LayoutGrid className="h-4 w-4" />
-              Cards
-            </Button>
-            <Button
-              variant={location.pathname === '/gantt' ? 'default' : 'outline'}
-              size="sm"
-              className="gap-2"
-              onClick={() => navigate('/gantt')}
-            >
-              <BarChart3 className="h-4 w-4" />
-              Gantt
-            </Button>
-            <Button
-              variant={location.pathname === '/calendar' ? 'default' : 'outline'}
-              size="sm"
-              className="gap-2"
-              onClick={() => navigate('/calendar')}
-            >
-              <Calendar className="h-4 w-4" />
-              Calendario
-            </Button>
+            <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border/50 mr-2">
+              <Button
+                variant={location.pathname === '/' ? 'default' : 'ghost'}
+                size="sm"
+                className={`gap-2 ${location.pathname === '/' ? 'shadow-md primary-gradient' : 'hover:bg-accent/50'}`}
+                onClick={() => navigate('/')}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span>Cards</span>
+              </Button>
+              <Button
+                variant={location.pathname === '/gantt' ? 'default' : 'ghost'}
+                size="sm"
+                className={`gap-2 ${location.pathname === '/gantt' ? 'shadow-md primary-gradient' : 'hover:bg-accent/50'}`}
+                onClick={() => navigate('/gantt')}
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span>Gantt</span>
+              </Button>
+              <Button
+                variant={location.pathname === '/calendar' ? 'default' : 'ghost'}
+                size="sm"
+                className={`gap-2 ${location.pathname === '/calendar' ? 'shadow-md primary-gradient' : 'hover:bg-accent/50'}`}
+                onClick={() => navigate('/calendar')}
+              >
+                <Calendar className="h-4 w-4" />
+                <span>Calendario</span>
+              </Button>
+            </div>
+
+            <div className="h-6 w-[1px] bg-border/50 mx-1" />
+
             <ImportHistoryDialog />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2" 
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-primary/20 hover:border-primary/50 hover:bg-primary/5 transition-colors"
               onClick={handleImportClick}
               disabled={isImporting}
             >
               {isImporting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Importando...
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <span className="text-primary font-medium">Importando...</span>
                 </>
               ) : (
                 <>
-                  <Download className="h-4 w-4" />
-                  Importar CSV
+                  <Download className="h-4 w-4 text-primary" />
+                  <span className="text-primary font-medium">Importar</span>
                 </>
               )}
             </Button>
@@ -308,7 +317,7 @@ const Header = () => {
               El archivo debe contener las siguientes columnas:
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-3">
             <div className="border border-border rounded-md p-4">
               <h4 className="font-semibold text-sm mb-2">Columnas requeridas:</h4>
@@ -320,7 +329,7 @@ const Header = () => {
                 </li>
               </ul>
             </div>
-            
+
             <div className="border border-border rounded-md p-4">
               <h4 className="font-semibold text-sm mb-2">Columnas opcionales:</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">

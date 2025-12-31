@@ -77,7 +77,7 @@ const ReferenceTable = () => {
     refs.forEach(ref => {
       const launchDate = parseDate(ref.lanzamiento_capsula);
       const ingresoDate = parseDate(ref.ingreso_a_bodega);
-      
+
       if (!launchDate) return;
 
       const baseDate = ingresoDate && ingresoDate > launchDate ? ingresoDate : launchDate;
@@ -165,8 +165,8 @@ const ReferenceTable = () => {
         (payload) => {
           console.log('Reference updated:', payload);
           // Update the existing reference in the data
-          setData(prevData => 
-            prevData.map(ref => 
+          setData(prevData =>
+            prevData.map(ref =>
               ref.id === payload.new.id ? payload.new as Reference : ref
             )
           );
@@ -182,7 +182,7 @@ const ReferenceTable = () => {
         (payload) => {
           console.log('Reference deleted:', payload);
           // Remove the deleted reference from the data
-          setData(prevData => 
+          setData(prevData =>
             prevData.filter(ref => ref.id !== payload.old.id)
           );
         }
@@ -328,8 +328,8 @@ const ReferenceTable = () => {
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return <ChevronUp className="h-4 w-4 text-muted-foreground/50" />;
-    return sortDirection === 'asc' ? 
-      <ChevronUp className="h-4 w-4 text-muted-foreground" /> : 
+    return sortDirection === 'asc' ?
+      <ChevronUp className="h-4 w-4 text-muted-foreground" /> :
       <ChevronDown className="h-4 w-4 text-muted-foreground" />;
   };
 
@@ -362,9 +362,9 @@ const ReferenceTable = () => {
           const unlockDate = new Date(baseDate);
           unlockDate.setDate(unlockDate.getDate() + 14);
           unlockDate.setHours(0, 0, 0, 0);
-          
+
           const isUnlocked = today >= unlockDate;
-          
+
           if (statusFilter === 'unlocked' && !isUnlocked) return false;
           if (statusFilter === 'locked' && isUnlocked) return false;
         }
@@ -376,7 +376,7 @@ const ReferenceTable = () => {
         const unlockDate = new Date(baseDate);
         unlockDate.setDate(unlockDate.getDate() + 14);
         const month = unlockDate.getMonth();
-        
+
         if (monthFilter === 'september' && month !== 8) return false;
         if (monthFilter === 'october' && month !== 9) return false;
         if (monthFilter === 'november' && month !== 10) return false;
@@ -388,10 +388,10 @@ const ReferenceTable = () => {
         const unlockDate = new Date(baseDate);
         unlockDate.setDate(unlockDate.getDate() + 14);
         unlockDate.setHours(0, 0, 0, 0);
-        
+
         const diffTime = unlockDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (dayFilter === '1-7' && (diffDays < 1 || diffDays > 7)) return false;
         if (dayFilter === '8-15' && (diffDays < 8 || diffDays > 15)) return false;
         if (dayFilter === '16-30' && (diffDays < 16 || diffDays > 30)) return false;
@@ -402,11 +402,11 @@ const ReferenceTable = () => {
     .sort((a, b) => {
       const aValue = a[sortField];
       const bValue = b[sortField];
-      
+
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
       }
-      
+
       const aStr = String(aValue || '');
       const bStr = String(bValue || '');
       return sortDirection === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
@@ -448,7 +448,7 @@ const ReferenceTable = () => {
       today.setHours(0, 0, 0, 0);
       const launchDate = parseDate(item.lanzamiento_capsula);
       const ingresoDate = parseDate(item.ingreso_a_bodega);
-      
+
       // Calcular fecha de desbloqueo
       let fechaDesbloqueo = '';
       if (launchDate) {
@@ -523,18 +523,18 @@ const ReferenceTable = () => {
 
     // Crear filas de datos - una fila por cada combinación referencia + talla + color
     const exportRows: Record<string, string | number>[] = [];
-    
+
     refsWithDistribution.forEach(item => {
       const sizes = item.curva.split('-');
       const quantities = item.distribucion!.split('-').map(Number);
       // Los colores pueden estar separados por coma o guión
       const colors = item.color!.split(/[,\-]/).map(c => c.trim()).filter(c => c.length > 0);
-      
+
       // Por cada color, crear filas separadas con todas las tallas
       colors.forEach(color => {
         sizes.forEach((size, sizeIndex) => {
           const quantityPerSize = quantities[sizeIndex] || 0;
-          
+
           if (quantityPerSize > 0) {
             exportRows.push({
               'StrProducto': item.referencia,
@@ -565,16 +565,16 @@ const ReferenceTable = () => {
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border">
+    <div className="bg-card/40 backdrop-blur-xl rounded-2xl border border-border/50 shadow-xl overflow-hidden mb-8">
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-foreground">
             Detalles de la Referencia
           </h2>
           <div className="flex gap-2 flex-wrap">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="gap-2"
               onClick={handleSelectAllFiltered}
               disabled={filteredAndSortedData.length === 0}
@@ -583,16 +583,16 @@ const ReferenceTable = () => {
             </Button>
             {selectedIds.size > 0 && (
               <>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={() => setSelectedIds(new Set())}
                 >
                   Deseleccionar
                 </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
+                <Button
+                  variant="destructive"
+                  size="sm"
                   className="gap-2"
                   onClick={handleBulkDelete}
                 >
@@ -601,9 +601,9 @@ const ReferenceTable = () => {
                 </Button>
               </>
             )}
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="gap-2"
               onClick={handleExportToExcel}
               disabled={filteredAndSortedData.length === 0}
@@ -611,9 +611,9 @@ const ReferenceTable = () => {
               <FileSpreadsheet className="h-4 w-4" />
               Exportar a Excel
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="gap-2"
               onClick={handleExportDistribution}
               disabled={filteredAndSortedData.length === 0}
@@ -623,7 +623,7 @@ const ReferenceTable = () => {
             </Button>
           </div>
         </div>
-        
+
         <div className="flex gap-4 items-center flex-wrap">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -634,7 +634,7 @@ const ReferenceTable = () => {
               className="pl-10"
             />
           </div>
-          
+
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Estado" />
@@ -645,7 +645,7 @@ const ReferenceTable = () => {
               <SelectItem value="locked">Bloqueadas</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Select value={monthFilter} onValueChange={setMonthFilter}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Todos los Meses" />
@@ -677,85 +677,85 @@ const ReferenceTable = () => {
           <thead className="bg-table-header">
             <tr>
               <th className="w-10 px-2 py-3 text-left">
-                <Checkbox 
+                <Checkbox
                   checked={paginatedData.length > 0 && paginatedData.every(item => selectedIds.has(item.id))}
                   onCheckedChange={handleSelectAll}
                 />
               </th>
-              <th className="w-14 px-2 py-3 text-left">
-                <span className="text-xs font-medium text-foreground">Imagen</span>
+              <th className="w-14 px-2 py-4 text-left">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Imagen</span>
               </th>
-              <th className="w-[10%] px-3 py-3 text-left">
-                <button 
+              <th className="w-[10%] px-3 py-4 text-left">
+                <button
                   onClick={() => handleSort('referencia')}
-                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 hover:text-primary transition-colors"
                 >
                   Referencia
                   <SortIcon field="referencia" />
                 </button>
               </th>
-              <th className="w-[10%] px-3 py-3 text-left">
-                <button 
+              <th className="w-[10%] px-3 py-4 text-left">
+                <button
                   onClick={() => handleSort('curva')}
-                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 hover:text-primary transition-colors"
                 >
                   Curva
                   <SortIcon field="curva" />
                 </button>
               </th>
-              <th className="w-16 px-2 py-3 text-left">
-                <button 
+              <th className="w-16 px-2 py-4 text-left">
+                <button
                   onClick={() => handleSort('cantidad')}
-                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 hover:text-primary transition-colors"
                 >
                   Cant.
                   <SortIcon field="cantidad" />
                 </button>
               </th>
-              <th className="w-[12%] px-3 py-3 text-left">
-                <span className="text-xs font-medium text-foreground">Colores</span>
+              <th className="w-[12%] px-3 py-4 text-left">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Colores</span>
               </th>
-              <th className="w-16 px-2 py-3 text-left">
-                <span className="text-xs font-medium text-foreground">Distrib.</span>
+              <th className="w-16 px-2 py-4 text-left">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Distrib.</span>
               </th>
-              <th className="w-[10%] px-2 py-3 text-left">
-                <button 
+              <th className="w-[10%] px-2 py-4 text-left">
+                <button
                   onClick={() => handleSort('ingreso_a_bodega')}
-                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 hover:text-primary transition-colors whitespace-nowrap"
                 >
                   Bodega
                   <SortIcon field="ingreso_a_bodega" />
                 </button>
               </th>
-              <th className="w-[10%] px-2 py-3 text-left">
-                <button 
+              <th className="w-[10%] px-2 py-4 text-left">
+                <button
                   onClick={() => handleSort('lanzamiento_capsula')}
-                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 hover:text-primary transition-colors whitespace-nowrap"
                 >
                   Lanzamiento
                   <SortIcon field="lanzamiento_capsula" />
                 </button>
               </th>
-              <th className="w-[10%] px-2 py-3 text-left">
-                <button 
+              <th className="w-[10%] px-2 py-4 text-left">
+                <button
                   onClick={() => handleSort('fecha_desbloqueo')}
-                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 hover:text-primary transition-colors whitespace-nowrap"
                 >
                   Desbloqueo
                   <SortIcon field="fecha_desbloqueo" />
                 </button>
               </th>
-              <th className="w-16 px-2 py-3 text-left">
-                <button 
+              <th className="w-16 px-2 py-4 text-left">
+                <button
                   onClick={() => handleSort('dias_desbloqueado')}
-                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/70 hover:text-primary transition-colors whitespace-nowrap"
                 >
                   Días
                   <SortIcon field="dias_desbloqueado" />
                 </button>
               </th>
-              <th className="w-20 px-2 py-3 text-left">
-                <span className="text-xs font-medium text-foreground">Acciones</span>
+              <th className="w-20 px-2 py-4 text-left">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Acciones</span>
               </th>
             </tr>
           </thead>
@@ -776,7 +776,7 @@ const ReferenceTable = () => {
               paginatedData.map((item) => (
                 <tr key={item.id} className="border-b border-border hover:bg-table-hover transition-colors">
                   <td className="px-2 py-3">
-                    <Checkbox 
+                    <Checkbox
                       checked={selectedIds.has(item.id)}
                       onCheckedChange={() => handleToggleSelect(item.id)}
                     />
@@ -787,8 +787,8 @@ const ReferenceTable = () => {
                         onClick={() => handleImageClick(item.imagen_url)}
                         className="relative w-10 h-10 rounded-md overflow-hidden border border-border hover:border-primary transition-colors cursor-pointer"
                       >
-                        <img 
-                          src={item.imagen_url} 
+                        <img
+                          src={item.imagen_url}
                           alt={item.referencia}
                           className="w-full h-full object-cover"
                         />
@@ -859,7 +859,7 @@ const ReferenceTable = () => {
                       const today = new Date();
                       const launchDate = parseDate(item.lanzamiento_capsula);
                       const ingresoDate = parseDate(item.ingreso_a_bodega);
-                      
+
                       if (!launchDate) {
                         return (
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-muted/50 text-muted-foreground">
@@ -894,7 +894,7 @@ const ReferenceTable = () => {
 
                       const daysSinceBase = Math.floor((today.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
                       const daysRemaining = Math.max(0, 14 - daysSinceBase);
-                      
+
                       if (daysRemaining > 0) {
                         return (
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-destructive/10 text-destructive whitespace-nowrap">
@@ -912,17 +912,17 @@ const ReferenceTable = () => {
                   </td>
                   <td className="px-2 py-3">
                     <div className="flex items-center gap-1">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-7 w-7 p-0"
                         onClick={() => handleEdit(item)}
                       >
                         <Edit className="h-3.5 w-3.5" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                         onClick={() => handleDelete(item)}
                       >
@@ -946,19 +946,19 @@ const ReferenceTable = () => {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious 
+                <PaginationPrevious
                   onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                   className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
-              
+
               {[...Array(totalPages)].map((_, index) => {
                 const page = index + 1;
                 // Show first page, last page, current page, and pages around current
-                const showPage = page === 1 || 
-                                page === totalPages || 
-                                (page >= currentPage - 1 && page <= currentPage + 1);
-                
+                const showPage = page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1);
+
                 if (!showPage) {
                   // Show ellipsis only once between groups
                   if (page === currentPage - 2 || page === currentPage + 2) {
@@ -970,7 +970,7 @@ const ReferenceTable = () => {
                   }
                   return null;
                 }
-                
+
                 return (
                   <PaginationItem key={page}>
                     <PaginationLink
@@ -983,9 +983,9 @@ const ReferenceTable = () => {
                   </PaginationItem>
                 );
               })}
-              
+
               <PaginationItem>
-                <PaginationNext 
+                <PaginationNext
                   onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                   className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
@@ -1042,8 +1042,8 @@ const ReferenceTable = () => {
         <DialogContent className="max-w-4xl">
           {selectedImage && (
             <div className="flex items-center justify-center p-4">
-              <img 
-                src={selectedImage} 
+              <img
+                src={selectedImage}
                 alt="Vista ampliada"
                 className="max-w-full max-h-[80vh] object-contain rounded-lg"
               />

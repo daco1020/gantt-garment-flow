@@ -66,9 +66,9 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
 
   const timeline = generateTimeline();
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('es-ES', { 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('es-ES', {
+      month: 'short',
+      day: 'numeric'
     }).replace('.', '');
   };
 
@@ -86,7 +86,7 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const displayItems = items.length > 0 ? items.slice(startIndex, endIndex) : [];
-  
+
   const launchDateNormalized = launchDate ? new Date(launchDate) : null;
   if (launchDateNormalized) {
     launchDateNormalized.setHours(0, 0, 0, 0);
@@ -117,7 +117,7 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
       <h2 className="text-lg font-semibold text-foreground mb-6">
         Resumen de la Cronología
       </h2>
-      
+
       <div className="space-y-6">
         {displayItems.length === 0 ? (
           <div className="flex items-center justify-center h-[200px] text-muted-foreground bg-gantt-background rounded border border-border">
@@ -137,36 +137,36 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
                   </div>
                 ))}
               </div>
-              
+
               {/* Chart area */}
               <div className="flex-1">
                 {/* Gantt bars */}
-                <div 
+                <div
                   className="relative min-h-[200px] bg-gantt-background rounded border border-border p-4"
                   onMouseMove={handleMouseMove}
                 >
                   {/* Launch date line */}
                   {launchPosition >= 0 && launchPosition <= 100 && (
-                    <div 
+                    <div
                       className="absolute top-0 bottom-0 w-0.5 bg-yellow-500 z-10 pointer-events-none"
                       style={{ left: `${launchPosition}%` }}
                     >
                       <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-yellow-500 rounded-full"></div>
                     </div>
                   )}
-                  
+
                   <div className="space-y-3">
                     {displayItems.map((item) => {
                       if (!item.start || !item.end) return null;
-                      
+
                       const startPos = calculatePosition(item.start);
                       const endPos = calculatePosition(item.end);
                       const width = endPos - startPos;
-                      
+
                       return (
                         <div key={item.id} className="relative h-8">
-                          <div 
-                            className="absolute h-full bg-gantt-primary rounded-sm shadow-sm cursor-pointer hover:bg-gantt-primary/80 transition-colors"
+                          <div
+                            className="absolute h-6 top-1 primary-gradient rounded-full shadow-lg shadow-indigo-500/20 cursor-pointer hover:scale-[1.02] transition-all duration-200"
                             style={{
                               left: `${startPos}%`,
                               width: `${width}%`
@@ -179,7 +179,7 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
                     })}
                   </div>
                 </div>
-                
+
                 {/* Timeline at bottom */}
                 <div className="flex justify-between text-xs text-muted-foreground mt-2 px-4">
                   {timeline.length > 0 && timeline.filter((_, i) => {
@@ -191,7 +191,7 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
                 </div>
               </div>
             </div>
-            
+
             {/* Legend */}
             <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
@@ -218,7 +218,7 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
                         className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
-                    
+
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
                       // Show first page, last page, current page, and pages around current
                       if (
@@ -246,7 +246,7 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
                       }
                       return null;
                     })}
-                    
+
                     <PaginationItem>
                       <PaginationNext
                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
@@ -263,7 +263,7 @@ const GanttChart = ({ items, launchDate }: GanttChartProps) => {
 
       {/* Tooltip */}
       {hoveredItem && (
-        <div 
+        <div
           className="fixed z-50 bg-background border border-border rounded-lg shadow-lg p-4 pointer-events-none"
           style={{
             left: `${mousePosition.x + 10}px`,
